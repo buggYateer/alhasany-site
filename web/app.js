@@ -72,6 +72,7 @@ function row(id, listKey, showSheikh) {
       <svg viewBox="0 0 24 24">${cur === id && !audio.paused ? ICON_PAUSE : ICON_PLAY}</svg></button>
     <div class="txt"><div class="t">${L.n ? `<span class="n">${L.n}</span>` : ""}${esc(L.t)}</div>
       <div class="m">${meta}</div>${pct > 1 ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div>
+    ${L.p ? `<a class="dl" href="/api/dl?id=${id}" data-dl="${id}" title="تحميل" aria-label="تحميل ${esc(L.t)}"><span class="ms" aria-hidden="true">download</span></a>` : ""}
     <a class="tg" href="${TG}${id}" target="_blank" rel="noopener" title="افتح في تليجرام" aria-label="افتح في تليجرام">${TG_SVG}</a></div>`;
 }
 const LISTS = {};
@@ -315,6 +316,7 @@ function play(id, listKey) {
   const se = seriesOf(id);
   $("#plSub").textContent = (sheikhName(id) ? "الشيخ " + sheikhName(id) : "مسجد الحسني") + (se ? " — " + se.title : "");
   $("#plTg").href = TG + id;
+  $("#plDl").href = `/api/dl?id=${id}`; $("#plDl").dataset.dl = id;
   if ("mediaSession" in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: L.t, artist: sheikhName(id), album: "مسجد الحسني", artwork: [{ src: "/logo.png", sizes: "256x256", type: "image/png" }] });
   }
@@ -430,6 +432,15 @@ document.addEventListener("click", e => {
   }
   const a = e.target.closest("a[href^='/']");
   if (a && !a.target && !e.ctrlKey && !e.metaKey && !e.shiftKey) { e.preventDefault(); if (a.getAttribute("href") !== location.pathname + location.search) go(a.getAttribute("href")); return; }
+  const dl = e.target.closest("[data-dl]");
+  if (dl) {
+    const L = DB.lessons[dl.dataset.dl];
+    if (L && L.p > 1) {
+      e.preventDefault();
+      for (let k = 1; k <= L.p; k++) setTimeout(() => { const a = document.createElement("a"); a.href = `/api/dl?id=${dl.dataset.dl}&p=${k}`; a.download = ""; document.body.appendChild(a); a.click(); a.remove(); }, (k - 1) * 900);
+    }
+    return;
+  }
   const b = e.target.closest("[data-play]");
   if (b) { play(+b.dataset.play, b.dataset.list); return; }
   const tab = e.target.closest("[data-tab]");

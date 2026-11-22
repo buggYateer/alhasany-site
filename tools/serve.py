@@ -19,6 +19,29 @@ class H(SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
     def do_GET(self):
+        if self.path.startswith("/api/dl"):
+            from urllib.parse import parse_qs, quote, urlparse
+            q = parse_qs(urlparse(self.path).query)
+            i, part = q.get("id", [""])[0], int(q.get("p", ["1"])[0] or 1)
+            db = json.loads((SITE / "web" / "lessons.json").read_text(encoding="utf-8"))
+            L = db["lessons"].get(i)
+            if not L or i not in AMAP:
+                return self.send_error(404)
+            sh = next((x["name"] for x in db["sheikhs"] if x["key"] == L["s"]), "")
+            name = L["t"] + (f" - الشيخ {sh}" if sh else "") + (f" ({part})" if L["p"] > 1 else "")
+            f = Path(AMAP[i][part - 1])
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/mpeg")
+            self.send_header("Content-Disposition", f"attachment; filename=\"{i}.mp3\"; filename*=UTF-8''{quote(name + '.mp3')}")
+            self.send_header("Content-Length", str(f.stat().st_size))
+            self.end_headers()
+            with open(f, "rb") as fh:
+                try:
+                    while chunk := fh.read(65536):
+                        self.wfile.write(chunk)
+                except (ConnectionResetError, BrokenPipeError):
+                    pass
+            return
         m = re.match(r"^/audio/(\d+)(?:_(\d+))?\.mp3", self.path)
         if not m:
             # صفحات الموقع (/s/...، /c/...) كلها بتتعرض من index.html

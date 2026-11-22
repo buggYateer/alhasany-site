@@ -66,7 +66,7 @@ def main():
 
     if "--no-push" in sys.argv:
         return
-    run("git", "add", "-A", "web", "tools", "fixes", "README.md", ".gitignore", "vercel.json")
+    run("git", "add", "-A", "web", "tools", "fixes", "api", "README.md", ".gitignore", "vercel.json")
     if run("git", "status", "--porcelain", check=False).strip() or DRY:
         run("git", "commit", "-m", "تحديث الموقع")
         run("git", "push")

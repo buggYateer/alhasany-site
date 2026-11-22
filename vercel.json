@@ -2,5 +2,10 @@
   "framework": null,
   "buildCommand": "",
   "outputDirectory": "web",
-  "rewrites": [{ "source": "/((?!audio/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!api/|audio/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

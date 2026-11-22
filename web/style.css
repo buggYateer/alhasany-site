@@ -416,3 +416,10 @@ html,body{max-width:100%;overflow-x:clip}
   .player.expanded .pl-inner{max-width:560px}
   body{padding-bottom:130px}
 }
+
+/* زرار التحميل */
+.row .dl{flex:none;color:var(--muted);display:grid;place-items:center;width:36px;height:36px;border-radius:50%}
+.row .dl:hover{background:var(--surface-2);color:var(--accent)}
+.row .dl .ms{font-size:22px}
+.pl-dl .ms{font-size:22px}
+@media (max-width:860px){.player:not(.expanded) .pl-dl{display:none}}
