@@ -5,7 +5,7 @@ self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c =>
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
-  if (e.request.method !== "GET" || u.origin !== location.origin || u.pathname.startsWith("/api/") || u.pathname.startsWith("/lawha-0ggtgy")) return;
+  if (e.request.method !== "GET" || u.origin !== location.origin || u.pathname.startsWith("/api/") || u.pathname.startsWith("/lawha")) return;
   // الشبكة الأول (علشان التحديثات تظهر على طول)، ولو مفيش نت نرجع المحفوظ
   e.respondWith(fetch(e.request).then(r => {
     if (r.ok) { const c = r.clone(); caches.open(CACHE).then(cc => cc.put(e.request.mode === "navigate" ? "/" : e.request, c)); }

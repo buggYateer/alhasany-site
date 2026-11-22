@@ -4,11 +4,11 @@
   "outputDirectory": "web",
   "rewrites": [
     {
-      "source": "/lawha-0ggtgy",
-      "destination": "/lawha-0ggtgy/index.html"
+      "source": "/lawha",
+      "destination": "/lawha/index.html"
     },
     {
-      "source": "/((?!api/|audio/|lawha-0ggtgy).*)",
+      "source": "/((?!api/|audio/|lawha).*)",
       "destination": "/index.html"
     }
   ]

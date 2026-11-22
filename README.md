@@ -28,7 +28,7 @@ python tools/update_site.py
 ```
 (`--dry` يوري هيعمل إيه من غير ما يرفع، و`--no-push` يرفع الصوت من غير ما ينشر الموقع)
 
-## الداشبورد (`/lawha-0ggtgy`)
+## الداشبورد (`/lawha`)
 تعديل عنوان/شيخ/نوع/تاريخ/سلسلة أي مقطع، إخفاؤه، إضافة مقطع جديد بملفه، والمختارات — من أي جهاز بباسورد.
 - التعديلات بتتحفظ في `web/overrides.json` على GitHub (الموقع بيقراه فوق `lessons.json`)، وVercel بينشر لوحده.
 - الصوت الجديد بيترفع في `incoming/<رقم الرسالة>.mp3` و GitHub Actions (`.github/workflows/incoming.yml`) بينقله لـ Release `audio-N` ويمسحه.
