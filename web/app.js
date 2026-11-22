@@ -450,10 +450,12 @@ document.addEventListener("click", e => { if (!e.target.closest(".speed")) speed
 const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
 function paintTheme() {
   const d = isDark();
+  const tr = $("#themeRow"); if (tr) { tr.querySelector(".ms").textContent = d ? "light_mode" : "dark_mode"; tr.lastElementChild.textContent = d ? "الوضع النهاري" : "الوضع الليلي"; }
   $("#themeIcon").textContent = d ? "light_mode" : "dark_mode";
   $("#themeBtn").setAttribute("aria-label", d ? "الوضع النهاري" : "الوضع الليلي");
   document.querySelector('meta[name="theme-color"]').content = d ? "#0f1626" : "#1e2a4a";
 }
+document.addEventListener("click", e => { if (e.target.closest("#themeRow")) $("#themeBtn").click(); });
 $("#themeBtn").onclick = () => { const t = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; store.set("theme", t); try { localStorage.setItem("theme", t); } catch {} paintTheme(); };
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintTheme);
 paintTheme();
@@ -475,7 +477,8 @@ function buildDrawer() {
   $("#drawerNav").innerHTML =
     `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
     `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/all", "جميع التسجيلات", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
-    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", DB.sheikhs.filter(s => !s.main).length);
+    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", DB.sheikhs.filter(s => !s.main).length) +
+    `<button class="theme-row" id="themeRow" type="button"><span class="ms" aria-hidden="true">dark_mode</span><span>الوضع الليلي</span></button>`;
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
 drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false), 0); });
@@ -552,7 +555,7 @@ fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
   for (const sh of DB.sheikhs) for (const se of sh.series || []) for (const sec of se.sections) for (const id of sec.ids) DB.ctx[id] += " " + se.title + " " + (sec.t || "");
   for (const c of DB.collections) for (const id of c.ids) DB.ctx[id] += " " + c.title;
   setSpeed(store.get("speed", 1));
-  buildDrawer();
+  buildDrawer(); paintTheme();
   // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
   if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
   window.addEventListener("popstate", () => route());
