@@ -21,6 +21,10 @@ class H(SimpleHTTPRequestHandler):
     def do_GET(self):
         m = re.match(r"^/audio/(\d+)(?:_(\d+))?\.mp3", self.path)
         if not m:
+            # صفحات الموقع (/s/...، /c/...) كلها بتتعرض من index.html
+            local = Path(super().translate_path(self.path))
+            if not local.exists():
+                self.path = "/index.html"
             return super().do_GET()
         if m.group(1) not in AMAP:
             return self.send_error(404)

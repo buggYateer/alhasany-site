@@ -18,7 +18,7 @@ const KIND = { lesson: "الدروس", khutba: "خطب الجمعة", tilawa: "�
 
 function audioUrl(id, p) {
   const name = DB.lessons[id].p > 1 ? `${id}_${p}.mp3` : `${id}.mp3`;
-  if (LOCAL) return `audio/${name}`;
+  if (LOCAL) return `/audio/${name}`;
   return `${DB.audioBase}/audio-${Math.floor(id / 500)}/${name}`;
 }
 const sheikhOf = id => DB.byKey[DB.lessons[id].s];
@@ -31,7 +31,7 @@ const newest = ids => [...ids].sort((a, b) => b - a);
 const hijri = h => h ? h.replace(/-/g, "/") + "هـ" : "";
 
 function arch(sh) {
-  const inner = sh.img ? `<img src="${esc(sh.img)}" alt="" loading="lazy">` : `<span aria-hidden="true">${esc(sh.name.trim()[0] || "")}</span>`;
+  const inner = sh.img ? `<img src="/${esc(sh.img)}" alt="" loading="lazy">` : `<span aria-hidden="true">${esc(sh.name.trim()[0] || "")}</span>`;
   return `<div class="arch">${inner}</div>`;
 }
 
@@ -81,10 +81,10 @@ function home() {
   </section>
   <div id="results"></div>
   <div id="homeBody">
-  ${secH("المشايخ", "", "sheikhs")}<div class="sheikhs">${main.map(s => `<a class="sh-card" href="#/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div><div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>
+  ${secH("المشايخ", "", "sheikhs")}<div class="sheikhs">${main.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div><div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>
   ${secH("آخر المستجدات", "", "latest")}${list("latest", all, { limit: 8, sheikh: true })}
-  ${DB.collections.map(c => `${secH("مواسم")}<a class="collection" href="#/c/${c.key}"><span class="moon" aria-hidden="true">🌙</span><div><h3>${esc(c.title)}</h3><p>${c.ids.length} مقطع: التراويح والتهجد والدروس</p></div></a>`).join("")}
-  ${secH("خطباء ومشايخ آخرون")}<div class="others">${rest.map(s => `<a href="#/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>
+  ${DB.collections.map(c => `${secH("مواسم")}<a class="collection" href="/c/${c.key}"><span class="moon" aria-hidden="true">🌙</span><div><h3>${esc(c.title)}</h3><p>${c.ids.length} مقطع: التراويح والتهجد والدروس</p></div></a>`).join("")}
+  ${secH("خطباء ومشايخ آخرون")}<div class="others">${rest.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>
   </div>`;
   const q = $("#q");
   const norm = s => s.replace(/[ً-ْ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
@@ -113,7 +113,7 @@ function sheikhPage(key, sel) {
     if (t.group !== g) { g = t.group; side += `<h4>${g}</h4>`; }
     side += `<button role="tab" data-tab="${t.id}" aria-selected="${t.id === active.id}">${esc(t.t)} <b>${t.n}</b></button>`;
   }
-  app.innerHTML = `<div class="crumbs"><a href="#/">الرئيسية</a> ‹ ${esc(sh.name)}</div>
+  app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(sh.name)}</div>
   <header class="sh-head">${arch(sh)}<div><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${count(sh)} مقطع</p></div></header>
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
   renderPanel(sh, active);
@@ -137,13 +137,15 @@ function renderPanel(sh, tab) {
 function collectionPage(key) {
   const c = DB.collections.find(x => x.key === key);
   if (!c) return notFound();
-  app.innerHTML = `<div class="crumbs"><a href="#/">الرئيسية</a> ‹ ${esc(c.title)}</div>
+  app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(c.title)}</div>
   ${secH(c.title, c.ids.length + " مقطع")}${list(`c:${key}`, c.ids, { sheikh: true })}`;
 }
-function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="#/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
+function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
 
+const pathParts = () => location.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).map(decodeURIComponent);
+function go(url) { history.pushState(null, "", url); route(); }
 function route() {
-  const p = location.hash.replace(/^#\/?/, "").split("/").map(decodeURIComponent);
+  const p = pathParts();
   if (p[0] === "s") sheikhPage(p[1], p[2]);
   else if (p[0] === "c") collectionPage(p[1]);
   else home();
@@ -167,7 +169,7 @@ function play(id, listKey) {
   $("#plSub").textContent = sheikhName(id) || "مسجد الحسني";
   $("#plTg").href = TG + id;
   if ("mediaSession" in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: L.t, artist: sheikhName(id), album: "مسجد الحسني", artwork: [{ src: "logo.png", sizes: "256x256", type: "image/png" }] });
+    navigator.mediaSession.metadata = new MediaMetadata({ title: L.t, artist: sheikhName(id), album: "مسجد الحسني", artwork: [{ src: "/logo.png", sizes: "256x256", type: "image/png" }] });
   }
   refreshRows();
 }
@@ -221,16 +223,18 @@ document.addEventListener("click", e => {
   const jump = e.target.closest("[data-jump]");
   if (jump) {
     e.preventDefault();
-    const go = () => document.getElementById(jump.dataset.jump)?.scrollIntoView();
-    if (location.hash.replace(/^#\/?/, "")) { location.hash = "#/"; setTimeout(go, 50); } else go();
+    const to = () => document.getElementById(jump.dataset.jump)?.scrollIntoView();
+    if (pathParts().length) { go("/"); setTimeout(to, 50); } else to();
     return;
   }
+  const a = e.target.closest("a[href^='/']");
+  if (a && !a.target && !e.ctrlKey && !e.metaKey && !e.shiftKey) { e.preventDefault(); if (a.getAttribute("href") !== location.pathname) go(a.getAttribute("href")); return; }
   const b = e.target.closest("[data-play]");
   if (b) { play(+b.dataset.play, b.dataset.list); return; }
   const tab = e.target.closest("[data-tab]");
   if (tab) {
-    const key = location.hash.replace(/^#\/?/, "").split("/").map(decodeURIComponent)[1];
-    history.replaceState(null, "", `#/s/${encodeURIComponent(key)}/${tab.dataset.tab}`);
+    const key = pathParts()[1];
+    history.replaceState(null, "", `/s/${encodeURIComponent(key)}/${tab.dataset.tab}`);
     document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === tab));
     const sh = DB.byKey[key];
     renderPanel(sh, sheikhTabs(sh).find(t => t.id === tab.dataset.tab));
@@ -254,10 +258,12 @@ document.addEventListener("click", e => {
   }
 });
 
-fetch("lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
+fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
   DB = d;
   DB.byKey = Object.fromEntries(DB.sheikhs.map(s => [s.key, s]));
   $("#plSpeed").textContent = store.get("speed", 1) + "×";
-  window.addEventListener("hashchange", route);
+  // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
+  if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
+  window.addEventListener("popstate", route);
   route();
 }).catch(() => { app.innerHTML = '<p class="empty">الصفحة مقدرتش تحمّل البيانات. حدّث الصفحة وجرّب تاني.</p>'; });

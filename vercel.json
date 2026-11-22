@@ -1,5 +1,6 @@
 {
   "framework": null,
   "buildCommand": "",
-  "outputDirectory": "web"
+  "outputDirectory": "web",
+  "rewrites": [{ "source": "/((?!audio/).*)", "destination": "/index.html" }]
 }
