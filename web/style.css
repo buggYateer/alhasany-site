@@ -661,3 +661,19 @@ h1,h2,h3{font-weight:600}
 .row .m a.sh:hover{text-decoration:underline;text-underline-offset:3px}
 :root[data-theme="dark"] .row .m a.sh{color:var(--gold)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .row .m a.sh{color:var(--gold)}}
+
+/* هيدر الموبايل: المنيو واللوجو أقرب لليمين، و«الحسني» من غير قص */
+.brand,.brand span{line-height:1.7;overflow:visible}
+.menu-btn svg{width:26px;height:26px}
+@media (max-width:600px){
+  .top .wrap{padding-inline-start:8px}
+  .menu-btn{margin-inline-end:2px}
+  .brand span{overflow:visible;text-overflow:clip}
+  /* بطاقات الأقسام أقصر */
+  .cats{gap:8px}
+  .cat{min-height:0;padding:10px 4px 8px;gap:2px}
+  .cat .ms{font-size:28px}
+  .cat b{font-size:13.5px;line-height:1.3}
+  .cat small{font-size:12px}
+}
+@container (min-width:760px){.row .txt{grid-template-columns:minmax(0,3.2fr) minmax(92px,.7fr) minmax(140px,.9fr) 52px}.row .m .tg-only{grid-column:2/-1;grid-row:2;justify-self:start}}

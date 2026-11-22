@@ -73,9 +73,7 @@ function row(id, listKey, showSheikh, showKind) {
     <button class="play" data-play="${id}" data-list="${listKey}" ${L.p ? "" : 'disabled title="الملف ده على تليجرام بس"'} aria-label="تشغيل ${esc(L.t)}">
       <svg viewBox="0 0 24 24">${cur === id && !audio.paused ? ICON_PAUSE : ICON_PLAY}</svg></button>
     <div class="txt"><div class="t">${showKind && BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}${L.n ? `<span class="n">${L.n}</span>` : ""}${esc(L.t)}</div>
-      <div class="m">${meta}${L.p
-        ? `<a class="dl" href="/api/dl?id=${id}" data-dl="${id}" title="تحميل" aria-label="تحميل ${esc(L.t)}"><span class="ms" aria-hidden="true">download</span><span class="dl-t">تحميل</span></a>`
-        : `<a class="tg-only" href="${TG}${id}" target="_blank" rel="noopener">اسمعه على تليجرام</a>`}</div>${pct > 1 ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div></div>`;
+      <div class="m">${meta}${L.p ? "" : `<a class="tg-only" href="${TG}${id}" target="_blank" rel="noopener">اسمعه على تليجرام</a>`}</div>${pct > 1 ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div></div>`;
 }
 const LISTS = {};
 function list(key, ids, opts = {}) {
