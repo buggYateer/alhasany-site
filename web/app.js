@@ -485,12 +485,15 @@ paintTheme();
 
 /* المنيو الجانبي */
 const drawer = $("#drawer"), scrim = $("#scrim"), menuBtn = $("#menuBtn");
-function menu(open) {
-  drawer.hidden = scrim.hidden = !open; menuBtn.setAttribute("aria-expanded", open);
-  document.body.style.overflow = open ? "hidden" : "";
+function menu(open, fresh) {
+  drawer.hidden = scrim.hidden = !open; menuBtn.setAttribute("aria-expanded", open); document.documentElement.classList.toggle("menu-open", open);
+  const b = document.body;
+  if (open && !b.dataset.lockY) { b.dataset.lockY = scrollY; Object.assign(b.style, { position: "fixed", top: -scrollY + "px", left: "0", right: "0", overflow: "hidden" }); }
+  else if (!open && b.dataset.lockY) { const y = +b.dataset.lockY; delete b.dataset.lockY; Object.assign(b.style, { position: "", top: "", left: "", right: "", overflow: "" }); if (!fresh) scrollTo({ top: y, behavior: "instant" }); }
   if (open) { markCurrent(); $("#menuClose").focus(); } else menuBtn.focus();
 }
 menuBtn.onclick = () => menu(true);
+scrim.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 $("#menuClose").onclick = scrim.onclick = () => menu(false);
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); else if (!speedMenu.hidden) speedOpen(false); else expand(false); } });
 function buildDrawer() {
@@ -504,11 +507,11 @@ function buildDrawer() {
     `<button class="theme-row" id="themeRow" type="button"><span class="ms" aria-hidden="true">dark_mode</span><span>الوضع الليلي</span></button>`;
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
-drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false), 0); });
+drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false, true), 0); });
 $("#drawerSearch").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
   const v = e.target.value.trim(); if (!v) return;
-  menu(false); go("/search?q=" + encodeURIComponent(v));
+  menu(false, true); go("/search?q=" + encodeURIComponent(v));
 });
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("nexttrack", () => step(1));
