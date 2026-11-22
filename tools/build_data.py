@@ -36,6 +36,9 @@ for f in sorted(glob.glob(str(SITE / "fixes" / "fix_*.json"))):
             cap[x["id"]] = x["html"]
 SERIES_TITLES = {int(k): v for k, v in json.loads((SITE / "fixes" / "series_titles.json").read_text(encoding="utf-8")).items()} if (SITE / "fixes" / "series_titles.json").exists() else {}
 SERIES_TITLES = {k: v for k, v in SERIES_TITLES.items() if k in APPLIED}
+# عناوين للموقع بس (علشان العنوان يتفهم لوحده برّه الفهرس)
+ST = SITE / "fixes" / "site_titles.json"
+SITE_TITLES = {int(k): v for k, v in json.loads(ST.read_text(encoding="utf-8")).items()} if ST.exists() else {}
 
 msgs = json.loads((DATA / "channel_audio.json").read_text(encoding="utf-8"))
 # رسايل اتمسحت من القناة (627: الخطبة اتعادت في 634)
@@ -159,7 +162,12 @@ for s in SERIES:
             if i not in lessons:
                 continue
             n += 1
-            lessons[i]["t"] = SERIES_TITLES.get(i, t)
+            t2 = SERIES_TITLES.get(i, t)
+            # عنوان بيبدأ بأرقام آيات «(64-66) ...» → نضيف اسم السورة علشان يتفهم لوحده
+            surah = sec if sec.startswith("سورة") else ("سورة " + s["title"].split("سورة", 1)[1].strip() if "سورة" in s["title"] else "")
+            if t2.startswith("(") and surah:
+                t2 = f"{surah} {t2}"
+            lessons[i]["t"] = SITE_TITLES.get(i, t2)
             lessons[i]["k"] = "lesson"
             if s.get("numbered"):
                 lessons[i]["n"] = n
