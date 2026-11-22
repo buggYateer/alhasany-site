@@ -252,6 +252,7 @@ const PAGES = {
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
   },
+  all: () => filterPage("all", "جميع التسجيلات", "تسجيل", null, ["kind", "sheikh", "month"]),
   lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
   khutab: () => filterPage("khutab", "خطب الجمعة", "خطبة", "khutba", ["sheikh", "month"]),
   tilawat: () => filterPage("tilawat", "التلاوات", "تلاوة", "tilawa", ["sheikh", "surah", "month"]),
@@ -266,8 +267,9 @@ document.addEventListener("toggle", e => { if (e.target.classList && e.target.cl
 const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
 function filterPage(page, title, unit, kind, fields) {
   { const q0 = new URLSearchParams(location.search); const v = q0.get("sheikh"); if (v && !DB.bySlug[v] && DB.byKey[v]) { q0.set("sheikh", DB.byKey[v].slug); history.replaceState(null, "", location.pathname + "?" + q0); } }
-  const base = allIds().filter(i => DB.lessons[i].k === kind && !DB.collections.some(c => c.ids.includes(i)));
+  const base = kind ? allIds().filter(i => DB.lessons[i].k === kind && !DB.collections.some(c => c.ids.includes(i))) : allIds();
   const facet = {
+    kind: { label: "النوع", all: "كل الأنواع", of: i => [DB.lessons[i].k], name: k => ({ lesson: "الدروس", khutba: "خطب الجمعة", tilawa: "التلاوات", other: "متفرقات" })[k] || k },
     sheikh: { label: "الشيخ", all: "كل المشايخ", of: i => { const sh = DB.byKey[DB.lessons[i].s]; return sh ? [sh.slug] : []; }, name: k => (DB.bySlug[k] || {}).name || k },
     month: { label: "الشهر", all: "كل الشهور", of: i => { const m = monthOf(DB.lessons[i]); return m ? [m.key] : []; }, name: k => { const [y, m] = k.split("-"); return `${MONTHS[+m - 1]} ${y}`; }, sort: (a, b) => b.localeCompare(a) },
     surah: { label: "السورة", all: "كل السور", of: i => surahsOf(DB.lessons[i].t).map(n => String(surahNo(n) || n)), name: k => SURAHS[+k - 1] || k, sort: (a, b) => (+a || 999) - (+b || 999) },
@@ -290,7 +292,7 @@ function filterPage(page, title, unit, kind, fields) {
     `<div class="lp"><aside class="lp-side"><details class="fbox"${FOPEN ? " open" : ""}><summary><span class="ms" aria-hidden="true">tune</span>فلترة وترتيب${active ? ` <b class="badge">${nActive}</b>` : ""}</summary>
     <div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
     ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></details></aside>
-    <div class="lp-main"><p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true }) + `</div></div>`;
+    <div class="lp-main"><p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true, kind: !kind }) + `</div></div>`;
 }
 document.addEventListener("change", e => {
   const s = e.target.closest("[data-f]"); if (!s) return;
@@ -440,7 +442,7 @@ function buildDrawer() {
   const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
   $("#drawerNav").innerHTML =
     `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
-    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
+    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/all", "جميع التسجيلات", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
     `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
