@@ -347,3 +347,9 @@ main.wrap{padding-top:24px;padding-bottom:8px}
 .searchbar input:focus{outline:none}
 .hero{grid-template-columns:1fr;grid-template-areas:"cats" "feature"}
 @media (max-width:860px){.nav + .search-btn{margin-inline-start:auto}}
+
+/* منع أي تحريك بالعرض (العمود الأبيض على الموبايل لما الكيبورد يفتح) */
+html,body{max-width:100%;overflow-x:clip}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}
+.searchbar input{font-size:16px}
+.sbox{min-width:0}
