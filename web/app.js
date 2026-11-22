@@ -657,7 +657,7 @@ document.addEventListener("click", e => {
 /* قايمة المشاركة: نسخ الرابط / مشاركة عبر */
 async function copyLink(url) {
   try { await navigator.clipboard.writeText(url); } catch { const t = document.createElement("textarea"); t.value = url; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
-  toast("اتنسخ الرابط ✓");
+  toast("تم نسخ الرابط ✓");
 }
 function closeShareMenu() { document.getElementById("shareMenu")?.remove(); }
 function shareLink(path, title, btn) {

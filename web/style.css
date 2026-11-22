@@ -902,3 +902,8 @@ body.has-player .toast{bottom:150px}
 .fpanel .filters{margin:0}
 .lp,.lp-side,.lp-main{display:block}
 @media (min-width:861px){.fpanel .flt{flex:1 1 180px}}
+
+/* زرار المشاركة في المشغل: من غير خلفية/إطار المتصفح */
+button.pl-tg{border:0;background:none;font:inherit;cursor:pointer;padding:0;color:#fff;-webkit-appearance:none;appearance:none}
+button.pl-tg:hover{background:rgba(255,255,255,.1)}
+.pl-btn{-webkit-appearance:none;appearance:none}
