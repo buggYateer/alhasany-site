@@ -374,3 +374,8 @@ html,body{max-width:100%;overflow-x:clip}
   .row .m span{font-size:14px}
   .row .prog{grid-column:1}
 }
+
+/* مسافة بين «الشيخ» والاسم */
+.sh-card .who{line-height:normal;gap:6px}
+.sh-card .who small{line-height:1.4;display:block}
+.sh-card .name{line-height:1.7;padding-top:2px}
