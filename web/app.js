@@ -202,7 +202,8 @@ function refreshRows() {
     const svg = r.querySelector(".play svg");
     if (svg) svg.innerHTML = on && !audio.paused ? ICON_PAUSE : ICON_PLAY;
   });
-  $("#plIcon").innerHTML = audio.paused ? ICON_PLAY : ICON_PAUSE;
+  $("#plIcon").textContent = audio.paused ? "play_arrow" : "pause";
+  $("#plPlay").setAttribute("aria-label", audio.paused ? "تشغيل" : "إيقاف مؤقت");
 }
 audio.addEventListener("play", refreshRows);
 audio.addEventListener("pause", () => { refreshRows(); savePos(); });
@@ -225,8 +226,8 @@ audio.addEventListener("ended", () => {
 function seekFill() { const el = $("#plSeek"); el.style.setProperty("--p", el.value / 10 + "%"); }
 $("#plSeek").addEventListener("input", e => { seekFill(); if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; });
 $("#plPlay").onclick = () => (audio.paused ? audio.play() : audio.pause());
-$("#plBack").onclick = () => (audio.currentTime = Math.max(0, audio.currentTime - 15));
-$("#plFwd").onclick = () => (audio.currentTime += 15);
+$("#plBack").onclick = () => (audio.currentTime = Math.max(0, audio.currentTime - 10));
+$("#plFwd").onclick = () => (audio.currentTime += 10);
 $("#plNext").onclick = () => step(1);
 $("#plPrev").onclick = () => step(-1);
 /* قايمة السرعات */
@@ -271,8 +272,8 @@ $("#drawerSearch").addEventListener("keydown", e => {
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("nexttrack", () => step(1));
   navigator.mediaSession.setActionHandler("previoustrack", () => step(-1));
-  navigator.mediaSession.setActionHandler("seekbackward", () => (audio.currentTime -= 15));
-  navigator.mediaSession.setActionHandler("seekforward", () => (audio.currentTime += 15));
+  navigator.mediaSession.setActionHandler("seekbackward", () => (audio.currentTime -= 10));
+  navigator.mediaSession.setActionHandler("seekforward", () => (audio.currentTime += 10));
 }
 window.addEventListener("pagehide", savePos);
 
