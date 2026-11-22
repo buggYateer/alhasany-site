@@ -94,7 +94,7 @@ function home() {
   LISTS.feature = [latest];
   app.innerHTML = `
   <section class="hero">
-    <div class="intro"><h1>دروس مسجد الحسني</h1><p>دروس الأسبوع وخطب الجمعة والتلاوات، مرتبة لكل شيخ.</p>
+    <div class="intro"><h1>تسجيلات مسجد الحسني</h1><p>دروس الأسبوع وخطب الجمعة والتلاوات، مرتبة لكل شيخ.</p>
       <input class="search" id="q" type="search" placeholder="ابحث باسم الدرس أو الشيخ" aria-label="بحث" autocomplete="off"></div>
     <article class="feature"><small>أحدث درس</small><h2>${esc(L.t)}</h2><p>${esc(sheikhName(latest) ? "الشيخ " + sheikhName(latest) : "")}${L.h ? " — " + esc(hijri(L.h)) : ""}</p>
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
