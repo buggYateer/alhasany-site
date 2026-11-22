@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مسجد الحَسَنِي</title>
+<meta name="description" content="دروس وخطب وتلاوات مسجد الحسني — استمع من الموقع مباشرة">
+<meta name="theme-color" content="#2b3a67">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/"><img src="logo.png" alt=""><span>مسجد الحَسَنِي</span></a>
+  <a class="tg-btn" href="https://t.me/masjed_alhasany" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>
+    <span>قناة التليجرام</span>
+  </a>
+</header>
+<main id="app" aria-live="polite"><p class="loading">جاري التحميل…</p></main>
+
+<div class="player" id="player" hidden>
+  <div class="pl-seek"><input type="range" id="plSeek" min="0" max="1000" value="0" aria-label="التقدم"></div>
+  <div class="pl-row">
+    <button class="pl-btn" id="plPrev" aria-label="السابق"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+    <button class="pl-btn" id="plBack" aria-label="رجوع 15 ثانية"><span>15</span><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z" transform="matrix(-1 0 0 1 24 0)"/></svg></button>
+    <button class="pl-btn pl-main" id="plPlay" aria-label="تشغيل"><svg viewBox="0 0 24 24" id="plIcon"><path d="M8 5v14l11-7z"/></svg></button>
+    <button class="pl-btn" id="plFwd" aria-label="تقديم 15 ثانية"><span>15</span><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg></button>
+    <button class="pl-btn" id="plNext" aria-label="التالي"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+    <div class="pl-info">
+      <div class="pl-title" id="plTitle"></div>
+      <div class="pl-sub"><span id="plSub"></span> · <span id="plTime">0:00</span> / <span id="plDur">0:00</span></div>
+    </div>
+    <button class="pl-speed" id="plSpeed" aria-label="سرعة التشغيل">1×</button>
+    <a class="pl-btn" id="plTg" target="_blank" rel="noopener" aria-label="افتح في تليجرام"><svg viewBox="0 0 24 24"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg></a>
+  </div>
+  <audio id="audio" preload="metadata"></audio>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

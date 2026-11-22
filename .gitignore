@@ -1,0 +1,5 @@
+tools/audio_map.json
+tools/durations.json
+tools/missing_audio.txt
+__pycache__/
+audio_from_telegram/
