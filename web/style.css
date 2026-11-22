@@ -743,3 +743,31 @@ body.has-player{padding-bottom:200px}
 .drawer-h b img{width:36px;height:36px}
 .cv-logo{width:34px;height:34px;border-radius:0;opacity:.95}
 @media (max-width:600px){.brand img{width:42px;height:42px}}
+
+/* أغلفة الدروس والسلاسل: نقشة إسلامية مختلفة + أيقونة النوع (من غير صورة الشيخ) */
+.cover{padding:0 7% 0 6%;justify-content:flex-start}
+.cover::before{background:radial-gradient(circle at 12% 115%,rgba(207,166,74,.3),transparent 50%)}
+.cover.pat0{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2256%22%20height%3D%2256%22%20viewBox%3D%220%200%2056%2056%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22%20transform%3D%22rotate%2845%2028%2028%29%22/%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2228%22%20r%3D%226%22/%3E%3C/g%3E%3C/svg%3E")}
+.cover.pat1{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22%20stroke-width%3D%221.4%22%3E%3Cpath%20d%3D%22M24%202%2044%2013.5v23L24%2048%204%2036.5v-23Z%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2225%22%20r%3D%223%22%20fill%3D%22rgba%28207%2C166%2C74%2C.22%29%22/%3E%3C/svg%3E")}
+.cover.pat2{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M20%200%2040%2020%2020%2040%200%2020Z%22/%3E%3Cpath%20d%3D%22M20%2010%2030%2020%2020%2030%2010%2020Z%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3C/g%3E%3C/svg%3E")}
+.cover.pat3{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M6%2044V24a14%2014%200%200%201%2028%200v20%22/%3E%3Cpath%20d%3D%22M14%2044V26a6%206%200%200%201%2012%200v18%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3C/g%3E%3C/svg%3E")}
+.cover.pat4{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%222%22%20fill%3D%22rgba%28207%2C166%2C74%2C.22%29%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%221.6%22%20fill%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3Cpath%20d%3D%22M0%2020h40M20%200v40%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22%20stroke-width%3D%22.8%22/%3E%3C/svg%3E")}
+.cover.t1{background-color:#26365e}.cover.t2{background-color:#1a4a54}.cover.t3{background-color:#4e2535}.cover.t4{background-color:#284e33}
+.cv-icon{position:absolute;left:5%;top:50%;transform:translateY(-50%);font-size:clamp(54px,30cqw,120px)!important;width:auto!important;color:var(--gold);opacity:.22}
+.cv-text{position:relative;z-index:1;max-width:72%}
+.cv-arch{display:none}
+
+/* كروت المشايخ: من غير صورة — لون الشيخ واسمه */
+.sh-card{position:relative;overflow:hidden;color:#fff;border:0;min-height:150px;justify-content:center;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2256%22%20height%3D%2256%22%20viewBox%3D%220%200%2056%2056%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22%20transform%3D%22rotate%2845%2028%2028%29%22/%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2228%22%20r%3D%226%22/%3E%3C/g%3E%3C/svg%3E")}
+.sh-card.t1{background-color:#26365e}.sh-card.t2{background-color:#1a4a54}.sh-card.t3{background-color:#4e2535}.sh-card.t4{background-color:#284e33}
+.sh-card .who small{color:var(--gold)}
+.sh-card .name{color:#fff;font-size:20px}
+.sh-card .day{background:rgba(255,255,255,.14);color:#fff}
+.sh-card .meta{color:rgba(255,255,255,.8);margin-top:4px}
+.sh-card:hover{filter:brightness(1.1)}
+.sh-card .arch{display:none}
+@media (max-width:600px){.sh-card{min-height:128px}.sh-card .name{font-size:17px}}
+/* صفحة الشيخ */
+.sh-head .arch{display:none}
+/* المشغل الصغير */
+.art-mini .ms{font-size:24px;color:var(--gold)}

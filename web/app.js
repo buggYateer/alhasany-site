@@ -94,10 +94,12 @@ const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` 
 /* غلاف السلسلة (معمول بالكود): لون لكل شيخ + قوس المحراب + صورة الشيخ لو موجودة */
 const TONES = { "يحيى_زكريا": "t1", "أحمد_عبدالسلام": "t2", "سيد_عبدالعال": "t3", "معاذ_زكريا": "t4" };
 const cleanTitle = t => t.replace(/^سلسلة\s+/, "").replace(/\s*\(.*?\)\s*/g, " ").trim();
+const KIND_ICON = { lesson: "menu_book", khutba: "mic", tilawa: "graphic_eq", other: "auto_stories" };
+const PATTERNS = 5;
 function cover(se, sh) {
-  const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc(sh.name.trim()[0] || "")}</span>`;
-  return `<div class="cover ${TONES[sh.key] || "t1"}" aria-hidden="true">
-    <div class="cv-arch">${face}</div>
+  const ids = seriesIds(se), pat = ids.length ? ids[0] % PATTERNS : 0;
+  return `<div class="cover ${TONES[sh.key] || "t1"} pat${pat}" aria-hidden="true">
+    <span class="ms cv-icon">auto_stories</span>
     <div class="cv-text"><small>${/^سلسلة/.test(se.title) ? "سلسلة" : "دروس"}</small><b>${esc(cleanTitle(se.title))}</b><i>الشيخ ${esc(sh.name)}</i></div>
     <img class="cv-logo" src="/logo-mark.svg?v=2" alt="">
   </div>`;
@@ -106,10 +108,9 @@ function cover(se, sh) {
 const secOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) for (const x of se.sections) if (x.ids.includes(+id)) return x.t || cleanTitle(se.title); return ""; };
 function lessonCover(id) {
   const L = DB.lessons[id], sh = DB.byKey[L.s] || { name: "", key: "" };
-  const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
   const tag = secOf(id) || (BADGE[L.k] || [""])[0];
-  return `<div class="cover lcover ${TONES[sh.key] || "t1"}" aria-hidden="true">
-    <div class="cv-arch">${face}</div>
+  return `<div class="cover lcover ${TONES[sh.key] || "t1"} pat${(+id) % PATTERNS}" aria-hidden="true">
+    <span class="ms cv-icon">${KIND_ICON[L.k] || "graphic_eq"}</span>
     <div class="cv-text"><small>${esc(tag)}</small><b>${esc(L.t)}</b>${sh.name ? `<i>الشيخ ${esc(sh.name)}</i>` : ""}</div>
     <img class="cv-logo" src="/logo-mark.svg?v=2" alt="">
   </div>`;
@@ -137,7 +138,7 @@ function popularPage() {
 }
 const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.key}">${cover(se, sh)}<div class="sc-body"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)} · ${seriesIds(se).length} درس</p></div></a>`;
 const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
-const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${s.slug}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card ${TONES[s.key] || "t1"}" href="/s/${s.slug}"><div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
@@ -238,7 +239,7 @@ function sheikhPage(key, sel) {
   LISTS["sh-last"] = [last];
   const L = DB.lessons[last];
   app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(sh.name)}</div>
-  <header class="sh-head">${arch(sh)}<div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
+  <header class="sh-head"><div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
   ${last ? `<div class="latest-card"><button class="play" data-play="${last}" data-list="sh-last" ${L.p ? "" : "disabled"} aria-label="تشغيل أحدث مقطع">${SVG_PLAY}</button>
     <div class="txt"><small>أحدث مقطع</small><div class="t">${esc(L.t)}</div><div class="m">${esc(hijri(L.h))}${L.d ? " — " + esc(L.d) : ""}</div></div></div>` : ""}
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
@@ -375,7 +376,7 @@ function play(id, listKey) {
   $("#plSub").textContent = (sheikhName(id) ? "الشيخ " + sheikhName(id) : "مسجد الحسني") + (se ? " — " + se.title : "");
   $("#plTg").href = TG + id;
   { const sh = sheikhOf(id) || { name: "", key: "" }; const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
-    $("#plArt").innerHTML = `<div class="art-mini ${TONES[sh.key] || "t1"}">${face}</div>${lessonCover(id)}`; }
+    $("#plArt").innerHTML = `<div class="art-mini ${TONES[sh.key] || "t1"}"><span class="ms">${KIND_ICON[L.k] || "graphic_eq"}</span></div>${lessonCover(id)}`; }
   $("#plDl").href = `/api/dl?id=${id}`; $("#plDl").dataset.dl = id;
   if ("mediaSession" in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: L.t, artist: sheikhName(id), album: "مسجد الحسني", artwork: [{ src: "/logo.png", sizes: "256x256", type: "image/png" }] });
