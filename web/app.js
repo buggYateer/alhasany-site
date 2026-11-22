@@ -526,8 +526,13 @@ document.addEventListener("click", e => {
     document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === tab));
     const sh = findSheikh(key);
     renderPanel(sh, sheikhTabs(sh).find(t => t.id === tab.dataset.tab));
-    tab.scrollIntoView({ block: "nearest", inline: "center" });
-    if (window.innerWidth <= 860) $("#panel").scrollIntoView({ block: "start" });
+    { const bar = tab.parentElement; if (bar.scrollWidth > bar.clientWidth) requestAnimationFrame(() => bar.scrollTo({ left: tab.offsetLeft - (bar.clientWidth - tab.clientWidth) / 2, behavior: "smooth" })); }
+    if (window.innerWidth <= 860) {
+      // ننزل لأول الدروس تحت الهيدر وشريط الأقسام الثابتين (من غير ما يغطّوا أول درس)
+      const offset = $(".top").offsetHeight + document.querySelector(".side").offsetHeight + 10;
+      const target = $("#panel").getBoundingClientRect().top + window.scrollY - offset;
+      if (target < window.scrollY) window.scrollTo({ top: target, behavior: "instant" });
+    }
     return;
   }
   if (e.target.closest("[data-clear]")) { history.replaceState(null, "", location.pathname); route(true); return; }
