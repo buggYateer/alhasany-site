@@ -346,7 +346,7 @@ function collectionPage(key) {
 function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
 
 const pathParts = () => location.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).map(decodeURIComponent);
-function go(url) { history.pushState(null, "", url); route(); }
+function go(url) { history.pushState(null, "", url); if (document.querySelector("#player.expanded")) expand(false); route(); }
 function route(keep) {
   const p = pathParts();
   if (p[0] !== "search" && !searchbar.hidden) { gq.value = ""; openSearch(false); }
@@ -355,7 +355,7 @@ function route(keep) {
   else if (p[0] === "search") searchPage();
   else if (PAGES[p[0]]) PAGES[p[0]]();
   else if (p.length) notFound();
-  else home();
+  else { home(); installUI(); }
   if (!keep) window.scrollTo(0, 0);
 }
 
@@ -374,7 +374,8 @@ function play(id, listKey) {
   $("#player").hidden = false; document.body.classList.add("has-player");
   $("#plTitle").textContent = (L.n ? L.n + ". " : "") + L.t;
   const se = seriesOf(id);
-  $("#plSub").textContent = (sheikhName(id) ? "الشيخ " + sheikhName(id) : "مسجد الحسني") + (se ? " — " + se.title : "");
+  { const sh = sheikhOf(id), se = seriesOf(id);
+    $("#plSub").innerHTML = sh ? `<a href="/s/${sh.slug}">الشيخ ${esc(sh.name)}</a>${se ? ` — <a href="/s/${sh.slug}/${se.key}">${esc(se.title)}</a>` : ""}` : "مسجد الحسني"; }
   $("#plTg").href = TG + id;
   { const sh = sheikhOf(id) || { name: "", key: "" }; const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
     $("#plArt").innerHTML = `<div class="art-mini ${TONES[sh.key] || "t1"}"><span class="ms">${KIND_ICON[L.k] || "graphic_eq"}</span></div>${lessonCover(id)}`; }
@@ -481,6 +482,7 @@ function buildDrawer() {
     `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.icon, c.n)).join("") +
     `<h4>تصفّح</h4>` + item("/", "الرئيسية", "home") + item("/all", "جميع التسجيلات", "library_music", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات", "schedule") + item("/popular", "الأكثر استماعًا", "trending_up") + item("/weekly", "دروس الأسبوع", "calendar_month", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", "auto_stories", se) +
     `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", "groups", DB.sheikhs.filter(s => !s.main).length) +
+    `<button class="install-row" id="installRow" type="button" hidden><span class="ms" aria-hidden="true">add_to_home_screen</span><span>ثبّت التطبيق على جهازك</span></button>` +
     `<button class="theme-row" id="themeRow" type="button"><span class="ms" aria-hidden="true">dark_mode</span><span>الوضع الليلي</span></button>`;
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
@@ -604,9 +606,37 @@ Promise.all([
   for (const sh of DB.sheikhs) for (const se of sh.series || []) for (const sec of se.sections) for (const id of sec.ids) DB.ctx[id] += " " + se.title + " " + (sec.t || "");
   for (const c of DB.collections) for (const id of c.ids) DB.ctx[id] += " " + c.title;
   setSpeed(store.get("speed", 1));
-  buildDrawer(); paintTheme();
+  buildDrawer(); paintTheme(); installUI();
   // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
   if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
   window.addEventListener("popstate", () => route());
   route();
 }).catch(() => { app.innerHTML = '<p class="empty">الصفحة مقدرتش تحمّل البيانات. حدّث الصفحة وجرّب تاني.</p>'; });
+
+/* تثبيت الموقع كتطبيق (PWA) — زرار في القائمة + شريط صغير في الرئيسية مرة واحدة */
+let installEvt = null;
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+if ("serviceWorker" in navigator && !LOCAL) navigator.serviceWorker.register("/sw.js").catch(() => {});
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; installUI(); });
+window.addEventListener("appinstalled", () => { installEvt = null; store.set("installDismissed", true); installUI(); });
+function canInstall() { return !isStandalone() && (installEvt || isIOS); }
+function installUI() {
+  const row = $("#installRow"); if (row) row.hidden = !canInstall();
+  const bar = $("#installBar");
+  if (canInstall() && !store.get("installDismissed", false) && !pathParts().length) {
+    if (!bar) {
+      const b = document.createElement("div"); b.id = "installBar"; b.className = "install-bar";
+      b.innerHTML = `<span class="ms" aria-hidden="true">add_to_home_screen</span><div><b>ثبّت موقع المسجد كتطبيق</b><small>يفتح من شاشة موبايلك بلمسة واحدة</small></div><button class="ib-go" type="button">تثبيت</button><button class="ib-x" type="button" aria-label="إغلاق"><span class="ms">close</span></button>`;
+      app.prepend(b);
+    }
+  } else if (bar) bar.remove();
+}
+async function doInstall() {
+  if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice; if (r.outcome === "accepted") store.set("installDismissed", true); installEvt = null; installUI(); return; }
+  if (isIOS) alert("علشان تثبّت الموقع على الآيفون: ١) دوس على زرار المشاركة (المربع اللي فيه سهم) تحت ٢) اختار «إضافة إلى الشاشة الرئيسية»");
+}
+document.addEventListener("click", e => {
+  if (e.target.closest("#installRow, .ib-go")) { doInstall(); return; }
+  if (e.target.closest(".ib-x")) { store.set("installDismissed", true); $("#installBar")?.remove(); }
+});
