@@ -644,19 +644,43 @@ document.addEventListener("click", e => {
 });
 
 /* مشاركة أو نسخ لينك أي صفحة (مقطع / شيخ / سلسلة) */
-async function shareLink(path, title) {
-  const url = location.origin + path;
-  if (navigator.share) { try { await navigator.share({ title: title || "مسجد الحسني", url }); return; } catch (e) { if (e.name === "AbortError") return; } }
+/* قايمة المشاركة: نسخ الرابط / مشاركة عبر */
+async function copyLink(url) {
   try { await navigator.clipboard.writeText(url); } catch { const t = document.createElement("textarea"); t.value = url; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
-  toast("اتنسخ اللينك ✓");
+  toast("اتنسخ الرابط ✓");
 }
+function closeShareMenu() { document.getElementById("shareMenu")?.remove(); }
+function shareLink(path, title, btn) {
+  const url = location.origin + path, ttl = title || "مسجد الحسني";
+  if (document.getElementById("shareMenu")?.dataset.for === path) return closeShareMenu();
+  closeShareMenu();
+  const m = document.createElement("div"); m.id = "shareMenu"; m.className = "share-menu"; m.dataset.for = path; m.setAttribute("role", "menu");
+  const enc = encodeURIComponent, text = enc(ttl + "\n" + url);
+  m.innerHTML = `<button role="menuitem" data-sm="copy"><span class="ms">link</span>نسخ الرابط</button>` +
+    (navigator.share ? `<button role="menuitem" data-sm="native"><span class="ms">share</span>مشاركة عبر…</button>`
+      : `<a role="menuitem" href="https://wa.me/?text=${text}" target="_blank" rel="noopener"><span class="ms">chat</span>واتساب</a><a role="menuitem" href="https://t.me/share/url?url=${enc(url)}&text=${enc(ttl)}" target="_blank" rel="noopener"><span class="ms">send</span>تليجرام</a>`);
+  document.body.appendChild(m);
+  const r = btn.getBoundingClientRect(), mw = m.offsetWidth, mh = m.offsetHeight;
+  let top = r.top - mh - 8; if (top < 8) top = r.bottom + 8;
+  let left = r.left + r.width / 2 - mw / 2; left = Math.max(8, Math.min(left, innerWidth - mw - 8));
+  m.style.top = top + "px"; m.style.left = left + "px";
+  m.onclick = async e => {
+    const it = e.target.closest("[data-sm], a"); if (!it) return;
+    if (it.dataset.sm === "copy") { e.preventDefault(); await copyLink(url); }
+    else if (it.dataset.sm === "native") { e.preventDefault(); try { await navigator.share({ title: ttl, url }); } catch {} }
+    closeShareMenu();
+  };
+}
+document.addEventListener("click", e => { if (!e.target.closest("#shareMenu, [data-share]")) closeShareMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeShareMenu(); });
+window.addEventListener("scroll", closeShareMenu, { passive: true });
 function toast(msg) {
   let el = document.getElementById("toast");
   if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; document.body.appendChild(el); }
   el.textContent = msg; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 2200);
 }
 const shareBtn = (path, title, cls = "") => `<button class="share-btn ${cls}" data-share="${esc(path)}" data-title="${esc(title)}" aria-label="مشاركة"><span class="ms" aria-hidden="true">share</span><span class="sb-t">مشاركة</span></button>`;
-document.addEventListener("click", e => { const b = e.target.closest("[data-share]"); if (b) { e.preventDefault(); e.stopPropagation(); shareLink(b.dataset.share, b.dataset.title); } }, true);
+document.addEventListener("click", e => { const b = e.target.closest("[data-share]"); if (b) { e.preventDefault(); e.stopPropagation(); shareLink(b.dataset.share, b.dataset.title, b); } }, true);
 
 /* صفحة لكل مقطع: /l/640 */
 function lessonPage(id) {
