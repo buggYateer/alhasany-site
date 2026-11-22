@@ -911,3 +911,8 @@ button.pl-tg:hover{background:rgba(255,255,255,.1)}
 .others a{justify-content:flex-start;gap:8px}
 .others a .ms{font-size:22px;color:var(--accent);flex:none}
 .others a .o-n{flex:1;min-width:0}
+
+/* الكروت اللي بتتقلب بالعرض (موبايل): توصل لطرف الشاشة من الناحيتين */
+@media (max-width:860px){
+  .card-row,.series-row{margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px}
+}
