@@ -505,3 +505,14 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
 @media (max-width:860px){
   .card-row,.series-row{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 36px);mask-image:linear-gradient(to left,transparent 0,#000 36px)}
 }
+
+/* عناوين الأقسام: خلفية كحلي واضحة */
+.sec-h{background:linear-gradient(90deg,var(--navy-d),var(--navy));border:0;border-inline-start:6px solid var(--gold);padding:12px 18px}
+.sec-h h2{color:#fff}
+.sec-h small{color:rgba(255,255,255,.75)}
+.see-all,.see-all:hover{color:var(--gold)}
+/* آخر المستجدات والأكثر استماعًا: تحت بعض، وكل واحد 4 في صف */
+@media (min-width:861px){
+  .duo{display:block}
+  .duo .duo-grid{grid-template-columns:repeat(4,1fr)}
+}

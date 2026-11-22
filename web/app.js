@@ -159,7 +159,7 @@ function home() {
       ${pop.length ? `<section>${secH("الأكثر استماعًا", "", "popular", "/popular")}<div class="card-row duo-grid">${pop.map(i => lessonCard(i, "popular")).join("")}</div></section>` : ""}</div>`;
   })()}
   ${secH("السلاسل", "", "series", "/series")}<div class="series-row">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>
-  ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
+  ${secH("خطباء ومشايخ", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
 
 /* البحث (أيقونة في الهيدر) */
@@ -247,7 +247,7 @@ function renderPanel(sh, tab) {
 /* صفحات المنيو */
 const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
-  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
+  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   popular: () => { const ids = popularIds().slice(0, 10); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "حسب عدد المشاهدات على قناة التليجرام") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
@@ -256,7 +256,7 @@ const PAGES = {
   lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
   khutab: () => filterPage("khutab", "خطب الجمعة", "خطبة", "khutba", ["sheikh", "month"]),
   tilawat: () => filterPage("tilawat", "التلاوات", "تلاوة", "tilawa", ["sheikh", "surah", "month"]),
-  others: () => { const rest = DB.sheikhs.filter(s => !s.main); app.innerHTML = pageHead("خطباء ومشايخ آخرون", `${rest.length} خطيب وشيخ`) + othersGrid(rest); },
+  others: () => { const rest = DB.sheikhs.filter(s => !s.main); app.innerHTML = pageHead("خطباء ومشايخ", `${rest.length} خطيب وشيخ`) + othersGrid(rest); },
 };
 
 PAGES.sheikhs = PAGES.weekly;
@@ -443,7 +443,7 @@ function buildDrawer() {
   $("#drawerNav").innerHTML =
     `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
     `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/all", "جميع التسجيلات", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
-    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
+    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", DB.sheikhs.filter(s => !s.main).length);
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
 drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false), 0); });
