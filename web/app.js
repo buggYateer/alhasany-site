@@ -63,7 +63,11 @@ function accordion(key, sections) {
     <button class="acc-h" aria-expanded="false" aria-controls="${key}-${i}">${CHEV}<span>${esc(s.t || "الدروس")}</span><small>${s.ids.length} درس</small></button>
     <div class="acc-b" id="${key}-${i}" hidden><div class="list" style="border:0;border-radius:0">${s.ids.map(id => row(id, key)).join("")}</div></div></section>`).join("");
 }
-const secH = (t, small = "", id = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${small ? `<small>${esc(small)}</small>` : ""}</div>`;
+const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${more ? `<a class="see-all" href="${more}">عرض الكل</a>` : small ? `<small>${esc(small)}</small>` : ""}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div><div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
+const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
+const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
 
 /* الرئيسية */
 function home() {
@@ -81,10 +85,10 @@ function home() {
   </section>
   <div id="results"></div>
   <div id="homeBody">
-  ${secH("المشايخ", "", "sheikhs")}<div class="sheikhs">${main.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div><div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>
-  ${secH("آخر المستجدات", "", "latest")}${list("latest", all, { limit: 8, sheikh: true })}
+  ${secH("المشايخ", "", "sheikhs", "/sheikhs")}${sheikhCards(main)}
+  ${secH("آخر المستجدات", "", "latest", "/latest")}${list("latest", all, { limit: 8, sheikh: true })}
   ${DB.collections.map(c => `${secH("مواسم")}<a class="collection" href="/c/${c.key}"><span class="moon" aria-hidden="true">🌙</span><div><h3>${esc(c.title)}</h3><p>${c.ids.length} مقطع: التراويح والتهجد والدروس</p></div></a>`).join("")}
-  ${secH("خطباء ومشايخ آخرون")}<div class="others">${rest.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>
+  ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}
   </div>`;
   const q = $("#q");
   const norm = s => s.replace(/[ً-ْ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
@@ -136,11 +140,23 @@ function renderPanel(sh, tab) {
     ${first ? `<button class="play-all" data-play="${first}" data-list="${listKey}">${SVG_PLAY}${s ? "شغّل من الأول" : "شغّل الأحدث"}</button>` : ""}</div>${body}`;
 }
 
+/* صفحات المنيو */
+const PAGES = {
+  latest: () => { const ids = allIds(); app.innerHTML = pageHead("آخر المستجدات", "كل مقاطع القناة، الأحدث الأول") + list("p:latest", ids, { limit: 30, sheikh: true }); },
+  sheikhs: () => { app.innerHTML = pageHead("المشايخ", "دروس المسجد الأسبوعية") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
+  series: () => {
+    const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${encodeURIComponent(sh.key)}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
+    app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${cards.join("")}</div>`;
+  },
+  khutab: () => { const ids = allIds().filter(i => DB.lessons[i].k === "khutba"); app.innerHTML = pageHead("خطب الجمعة", `${ids.length} خطبة، الأحدث الأول`) + list("p:khutab", ids, { limit: 30, sheikh: true }); },
+  tilawat: () => { const ids = allIds().filter(i => DB.lessons[i].k === "tilawa"); app.innerHTML = pageHead("التلاوات", `${ids.length} تلاوة، الأحدث الأول`) + list("p:tilawat", ids, { limit: 30, sheikh: true }); },
+  others: () => { const rest = DB.sheikhs.filter(s => !s.main); app.innerHTML = pageHead("خطباء ومشايخ آخرون", `${rest.length} خطيب وشيخ`) + othersGrid(rest); },
+};
+
 function collectionPage(key) {
   const c = DB.collections.find(x => x.key === key);
   if (!c) return notFound();
-  app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(c.title)}</div>
-  ${secH(c.title, c.ids.length + " مقطع")}${list(`c:${key}`, c.ids, { sheikh: true })}`;
+  app.innerHTML = pageHead(c.title, `${c.ids.length} مقطع: التراويح والتهجد والدروس`) + list(`c:${key}`, c.ids, { sheikh: true });
 }
 function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
 
@@ -150,6 +166,8 @@ function route() {
   const p = pathParts();
   if (p[0] === "s") sheikhPage(p[1], p[2]);
   else if (p[0] === "c") collectionPage(p[1]);
+  else if (PAGES[p[0]]) PAGES[p[0]]();
+  else if (p.length) notFound();
   else home();
   window.scrollTo(0, 0);
 }
@@ -234,16 +252,15 @@ menuBtn.onclick = () => menu(true);
 $("#menuClose").onclick = scrim.onclick = () => menu(false);
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); speedOpen(false); } });
 function buildDrawer() {
-  const main = DB.sheikhs.filter(s => s.main), rest = DB.sheikhs.filter(s => !s.main);
-  const k = s => encodeURIComponent(s.key);
-  let h = `<a href="/">الرئيسية</a><a href="/" data-jump="latest">آخر المستجدات</a>`;
-  h += `<h4>المشايخ</h4>` + main.map(s => `<a href="/s/${k(s)}">الشيخ ${esc(s.name)} <small>${count(s)}</small></a>`).join("");
-  h += `<h4>السلاسل</h4>` + main.flatMap(s => (s.series || []).map(se => `<a href="/s/${k(s)}/${se.key}">${esc(se.title)} <small>${seriesIds(se).length}</small></a>`)).join("");
-  h += `<h4>مواسم</h4>` + DB.collections.map(c => `<a href="/c/${c.key}">${esc(c.title)} <small>${c.ids.length}</small></a>`).join("");
-  h += `<h4>خطباء ومشايخ آخرون</h4>` + rest.map(s => `<a href="/s/${k(s)}">${esc(s.name)} <small>${count(s)}</small></a>`).join("");
-  $("#drawerNav").innerHTML = h;
+  const item = (href, t, n) => `<a href="${href}">${t}${n ? ` <small>${n}</small>` : ""}</a>`;
+  const kh = Object.values(DB.lessons).filter(L => L.k === "khutba").length, ti = Object.values(DB.lessons).filter(L => L.k === "tilawa").length;
+  const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
+  $("#drawerNav").innerHTML =
+    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/sheikhs", "المشايخ", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
+    `<h4>المقاطع</h4>` + item("/khutab", "خطب الجمعة", kh) + item("/tilawat", "التلاوات", ti) + DB.collections.map(c => item(`/c/${c.key}`, esc(c.title), c.ids.length)).join("") +
+    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
 }
-function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here && !a.dataset.jump)); }
+function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
 drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false), 0); });
 $("#drawerSearch").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;

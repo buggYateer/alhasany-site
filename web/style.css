@@ -141,7 +141,7 @@ main.wrap{padding-top:24px;padding-bottom:8px}
 .drawer-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .drawer-h b{font-family:var(--serif);font-size:22px}
 .x-btn:hover{background:var(--surface-2)}
-.drawer h4{margin:18px 4px 6px;font-size:13px;color:var(--muted);font-weight:600}
+.drawer h4{display:inline-block;margin:18px 0 6px;padding:2px 12px;border-radius:999px;background:var(--navy);color:#fff;font-size:13px;font-weight:600}
 .drawer nav a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:10px;font-size:15.5px}
 .drawer nav a:hover,.drawer nav a[aria-current="page"]{background:var(--tint)}
 .drawer nav a small{color:var(--muted);font-size:13px}
@@ -207,3 +207,16 @@ main.wrap{padding-top:24px;padding-bottom:8px}
   .sh-head .arch{width:68px}
   body{padding-bottom:170px}
 }
+
+/* صفحات المنيو */
+.page-h{margin-bottom:20px}
+.page-h h1{font-size:34px}
+.page-h p{margin:2px 0 0;color:var(--muted)}
+.see-all{font-size:14.5px;font-weight:600;color:var(--accent);padding:4px 10px;border-radius:8px}
+.see-all:hover{background:var(--tint)}
+.series-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.series-card{display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--gold);border-radius:var(--radius);padding:16px 18px}
+.series-card:hover{border-color:var(--gold)}
+.series-card h3{font-size:21px}
+.series-card p{margin:0;color:var(--muted)}
+.series-card small{color:var(--gold-d);font-weight:600;margin-top:6px}
