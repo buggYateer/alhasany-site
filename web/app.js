@@ -379,6 +379,7 @@ function play(id, listKey) {
     $("#plSub").innerHTML = sh ? `<a href="/s/${sh.slug}">الشيخ ${esc(sh.name)}</a>${se ? ` — <a href="/s/${sh.slug}/${se.key}">${esc(se.title)}</a>` : ""}` : "مسجد الحسني"; }
   $("#plTg").href = TG + id;
   $("#plShare").dataset.share = "/l/" + id; $("#plShare").dataset.title = L.t;
+  $("#plShare2").dataset.share = "/l/" + id; $("#plShare2").dataset.title = L.t; $("#plTg2").href = TG + id;
   { const sh = sheikhOf(id) || { name: "", key: "" }; const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
     $("#plArt").innerHTML = `<div class="art-mini ${TONES[sh.key] || "t1"}"><span class="ms">${KIND_ICON[L.k] || "graphic_eq"}</span></div>${lessonCover(id)}`; }
   $("#plDl").href = `/api/dl?id=${id}`; $("#plDl").dataset.dl = id;

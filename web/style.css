@@ -872,3 +872,15 @@ body.has-player .toast{bottom:150px}
 .share-menu button,.share-menu a{display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:inherit;font-size:15px;font-weight:600;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:start}
 .share-menu button:hover,.share-menu a:hover{background:var(--surface-2)}
 .share-menu .ms{font-size:20px;color:var(--accent)}
+
+/* مشاركة وتليجرام في المشغل الصغير */
+.pl-edge{display:none}
+@media (max-width:860px){
+  .player:not(.expanded) .pl-ctrls{justify-content:space-between;gap:0}
+  .player:not(.expanded) .pl-edge{display:grid;opacity:.85}
+  .player:not(.expanded) .pl-edge svg{width:21px;height:21px;fill:currentColor}
+  .player:not(.expanded) .pl-edge .ms{font-size:23px}
+}
+@media (min-width:861px){
+  .player:not(.expanded) .pl-share{display:grid}
+}
