@@ -15,6 +15,22 @@ const SVG_PLAY = `<svg viewBox="0 0 24 24">${ICON_PLAY}</svg>`;
 const CHEV = '<svg class="chev" viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>';
 const TG_SVG = '<svg viewBox="0 0 24 24"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>';
 const KIND = { lesson: "الدروس", khutba: "خطب الجمعة", tilawa: "التلاوات", other: "متفرقات" };
+const DAYS = { "أحمد_عبدالسلام": "درس الثلاثاء", "يحيى_زكريا": "درس الأربعاء", "سيد_عبدالعال": "درس الجمعة", "معاذ_زكريا": "درس السبت" };
+const MONTHS = ["محرم", "صفر", "ربيع الأول", "ربيع الآخر", "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", "رمضان", "شوال", "ذو القعدة", "ذو الحجة"];
+const MONTH_ALIASES = { "جماد أول": 5, "جماد آخر": 6, "جمادى الأولى": 5, "جمادى الآخرة": 6, "ربيع أول": 3, "ربيع ثان": 4, "ربيع آخر": 4 };
+/* الشهر الهجري لكل مقطع: {key: "1447-05", label: "جمادى الأولى 1447"} */
+function monthOf(L) {
+  let m, y, r = /^(\d+)-(\d+)-(14\d\d)$/.exec(L.h || "");
+  if (r) { m = +r[2]; y = r[3]; }
+  else if ((r = /^(.+?)\s+(14\d\d)$/.exec(L.h || ""))) { y = r[2]; m = MONTH_ALIASES[r[1]] || MONTHS.indexOf(r[1]) + 1; }
+  if (!m || m > 12) return null;
+  return { key: `${y}-${String(m).padStart(2, "0")}`, label: `${MONTHS[m - 1]} ${y}` };
+}
+/* السور في عنوان التلاوة */
+function surahsOf(t) {
+  const r = /سور(?:ة|تي)\s+(.+?)(?:\s+(?:في|من|كاملة)(?=\s|$)|\s*[–(-]|$)/.exec(t);
+  return r ? r[1].split(/\s+و(?=ال|[^\s]{2,})/).map(x => x.replace(/[()«»]/g, "").trim()).filter(Boolean) : [];
+}
 
 function audioUrl(id, p) {
   const name = DB.lessons[id].p > 1 ? `${id}_${p}.mp3` : `${id}.mp3`;
@@ -64,7 +80,7 @@ function accordion(key, sections) {
     <div class="acc-b" id="${key}-${i}" hidden><div class="list" style="border:0;border-radius:0">${s.ids.map(id => row(id, key)).join("")}</div></div></section>`).join("");
 }
 const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${more ? `<a class="see-all" href="${more}">عرض الكل</a>` : small ? `<small>${esc(small)}</small>` : ""}</div>`;
-const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div><div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
@@ -85,7 +101,7 @@ function home() {
   </section>
   <div id="results"></div>
   <div id="homeBody">
-  ${secH("المشايخ", "", "sheikhs", "/sheikhs")}${sheikhCards(main)}
+  ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
   ${secH("آخر المستجدات", "", "latest", "/latest")}${list("latest", all, { limit: 8, sheikh: true })}
   ${DB.collections.map(c => `${secH("مواسم")}<a class="collection" href="/c/${c.key}"><span class="moon" aria-hidden="true">🌙</span><div><h3>${esc(c.title)}</h3><p>${c.ids.length} مقطع: التراويح والتهجد والدروس</p></div></a>`).join("")}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}
@@ -143,15 +159,54 @@ function renderPanel(sh, tab) {
 /* صفحات المنيو */
 const PAGES = {
   latest: () => { const ids = allIds(); app.innerHTML = pageHead("آخر المستجدات", "كل مقاطع القناة، الأحدث الأول") + list("p:latest", ids, { limit: 30, sheikh: true }); },
-  sheikhs: () => { app.innerHTML = pageHead("المشايخ", "دروس المسجد الأسبوعية") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
+  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   series: () => {
     const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${encodeURIComponent(sh.key)}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${cards.join("")}</div>`;
   },
-  khutab: () => { const ids = allIds().filter(i => DB.lessons[i].k === "khutba"); app.innerHTML = pageHead("خطب الجمعة", `${ids.length} خطبة، الأحدث الأول`) + list("p:khutab", ids, { limit: 30, sheikh: true }); },
-  tilawat: () => { const ids = allIds().filter(i => DB.lessons[i].k === "tilawa"); app.innerHTML = pageHead("التلاوات", `${ids.length} تلاوة، الأحدث الأول`) + list("p:tilawat", ids, { limit: 30, sheikh: true }); },
+  lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
+  khutab: () => filterPage("khutab", "خطب الجمعة", "خطبة", "khutba", ["sheikh", "month"]),
+  tilawat: () => filterPage("tilawat", "التلاوات", "تلاوة", "tilawa", ["sheikh", "surah", "month"]),
   others: () => { const rest = DB.sheikhs.filter(s => !s.main); app.innerHTML = pageHead("خطباء ومشايخ آخرون", `${rest.length} خطيب وشيخ`) + othersGrid(rest); },
 };
+
+PAGES.sheikhs = PAGES.weekly;
+
+/* صفحة فيها فلاتر (الشيخ / الشهر / السورة / السلسلة) — الاختيارات بتتحفظ في اللينك */
+const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
+function filterPage(page, title, unit, kind, fields) {
+  const base = allIds().filter(i => DB.lessons[i].k === kind && !DB.collections.some(c => c.ids.includes(i)));
+  const facet = {
+    sheikh: { label: "الشيخ", all: "كل المشايخ", of: i => DB.lessons[i].s ? [DB.lessons[i].s] : [], name: k => (DB.byKey[k] || {}).name || k },
+    month: { label: "الشهر", all: "كل الشهور", of: i => { const m = monthOf(DB.lessons[i]); return m ? [m.key] : []; }, name: k => { const [y, m] = k.split("-"); return `${MONTHS[+m - 1]} ${y}`; }, sort: (a, b) => b.localeCompare(a) },
+    surah: { label: "السورة", all: "كل السور", of: i => surahsOf(DB.lessons[i].t), name: k => k },
+    series: { label: "السلسلة", all: "كل الدروس", of: i => { const se = seriesOf(i); return [se ? se.key : "_"]; }, name: k => k === "_" ? "دروس متفرقة" : (DB.sheikhs.flatMap(s => s.series || []).find(x => x.key === k) || {}).title || k },
+  };
+  const q = new URLSearchParams(location.search);
+  const sel = Object.fromEntries(fields.map(f => [f, q.get(f) || ""]));
+  const order = q.get("order") === "old" ? "old" : "new";
+  const pick = (except) => base.filter(i => fields.every(f => f === except || !sel[f] || facet[f].of(i).includes(sel[f])));
+  let ids = pick(null);
+  if (order === "old") ids = [...ids].reverse();
+  const selects = fields.map(f => {
+    const F = facet[f], cnt = {};
+    for (const i of pick(f)) for (const k of F.of(i)) cnt[k] = (cnt[k] || 0) + 1;
+    const keys = Object.keys(cnt).sort(F.sort || ((a, b) => cnt[b] - cnt[a]));
+    return `<label class="flt"><span>${F.label}</span><select data-f="${f}"><option value="">${F.all}</option>${keys.map(k => `<option value="${esc(k)}"${k === sel[f] ? " selected" : ""}>${esc(F.name(k))} (${cnt[k]})</option>`).join("")}</select></label>`;
+  }).join("");
+  const active = fields.some(f => sel[f]) || order === "old";
+  app.innerHTML = pageHead(title, `${base.length} ${unit}`) +
+    `<div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
+    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div>
+    <p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true });
+}
+document.addEventListener("change", e => {
+  const s = e.target.closest("[data-f]"); if (!s) return;
+  const q = new URLSearchParams(location.search);
+  if (s.value && !(s.dataset.f === "order" && s.value === "new")) q.set(s.dataset.f, s.value); else q.delete(s.dataset.f);
+  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+  route(true);
+});
 
 function collectionPage(key) {
   const c = DB.collections.find(x => x.key === key);
@@ -162,14 +217,14 @@ function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش �
 
 const pathParts = () => location.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).map(decodeURIComponent);
 function go(url) { history.pushState(null, "", url); route(); }
-function route() {
+function route(keep) {
   const p = pathParts();
   if (p[0] === "s") sheikhPage(p[1], p[2]);
   else if (p[0] === "c") collectionPage(p[1]);
   else if (PAGES[p[0]]) PAGES[p[0]]();
   else if (p.length) notFound();
   else home();
-  window.scrollTo(0, 0);
+  if (!keep) window.scrollTo(0, 0);
 }
 
 /* المشغل */
@@ -257,8 +312,8 @@ function buildDrawer() {
   const kh = Object.values(DB.lessons).filter(L => L.k === "khutba").length, ti = Object.values(DB.lessons).filter(L => L.k === "tilawa").length;
   const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
   $("#drawerNav").innerHTML =
-    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/sheikhs", "المشايخ", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
-    `<h4>المقاطع</h4>` + item("/khutab", "خطب الجمعة", kh) + item("/tilawat", "التلاوات", ti) + DB.collections.map(c => item(`/c/${c.key}`, esc(c.title), c.ids.length)).join("") +
+    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
+    `<h4>المقاطع</h4>` + item("/lessons", "الدروس", Object.values(DB.lessons).filter(L => L.k === "lesson").length) + item("/khutab", "خطب الجمعة", kh) + item("/tilawat", "التلاوات", ti) + DB.collections.map(c => item(`/c/${c.key}`, esc(c.title), c.ids.length)).join("") +
     `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
@@ -286,7 +341,7 @@ document.addEventListener("click", e => {
     return;
   }
   const a = e.target.closest("a[href^='/']");
-  if (a && !a.target && !e.ctrlKey && !e.metaKey && !e.shiftKey) { e.preventDefault(); if (a.getAttribute("href") !== location.pathname) go(a.getAttribute("href")); return; }
+  if (a && !a.target && !e.ctrlKey && !e.metaKey && !e.shiftKey) { e.preventDefault(); if (a.getAttribute("href") !== location.pathname + location.search) go(a.getAttribute("href")); return; }
   const b = e.target.closest("[data-play]");
   if (b) { play(+b.dataset.play, b.dataset.list); return; }
   const tab = e.target.closest("[data-tab]");
@@ -300,6 +355,7 @@ document.addEventListener("click", e => {
     if (window.innerWidth <= 860) $("#panel").scrollIntoView({ block: "start" });
     return;
   }
+  if (e.target.closest("[data-clear]")) { history.replaceState(null, "", location.pathname); route(true); return; }
   const acc = e.target.closest(".acc-h");
   if (acc) {
     const open = acc.getAttribute("aria-expanded") !== "true";
@@ -329,6 +385,6 @@ fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
   buildDrawer();
   // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
   if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
-  window.addEventListener("popstate", route);
+  window.addEventListener("popstate", () => route());
   route();
 }).catch(() => { app.innerHTML = '<p class="empty">الصفحة مقدرتش تحمّل البيانات. حدّث الصفحة وجرّب تاني.</p>'; });
