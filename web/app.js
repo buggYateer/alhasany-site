@@ -218,10 +218,12 @@ const shAll = sh => [...shLessons(sh), ...sh.khutba, ...sh.tilawa, ...sh.other];
 function sheikhTabs(sh) {
   const tabs = [];
   const nl = shLessons(sh).length;
-  if (nl) tabs.push({ id: "recent", t: "أحدث الدروس", n: nl, group: "الدروس" });
+  const g1 = nl && sh.tilawa.length ? "الدروس والتلاوات" : "الدروس";
+  if (nl) tabs.push({ id: "recent", t: "أحدث الدروس", n: nl, group: g1 });
+  if (nl && sh.tilawa.length) tabs.push({ id: "tilawa", t: KIND.tilawa, n: sh.tilawa.length, group: g1 });
   for (const se of sh.series || []) tabs.push({ id: se.key, t: se.title, n: seriesIds(se).length, group: "السلاسل" });
   if (sh.lesson.length && sh.series) tabs.push({ id: "lesson", t: "دروس متفرقة", n: sh.lesson.length, group: "السلاسل" });
-  for (const k of ["khutba", "tilawa", "other"]) if (sh[k].length) tabs.push({ id: k, t: KIND[k], n: sh[k].length, group: "مقاطع أخرى" });
+  for (const k of ["khutba", "tilawa", "other"]) if (sh[k].length && !tabs.some(t => t.id === k)) tabs.push({ id: k, t: KIND[k], n: sh[k].length, group: "مقاطع أخرى" });
   if (!tabs.length || (!sh.series && sh.lesson.length && !nl)) tabs.unshift({ id: "lesson", t: KIND.lesson, n: sh.lesson.length, group: "الدروس" });
   return tabs;
 }
