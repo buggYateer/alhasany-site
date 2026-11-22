@@ -28,6 +28,9 @@ for f in files:
         cap[x["id"]] = x["html"]
 
 msgs = json.loads((DATA / "channel_audio.json").read_text(encoding="utf-8"))
+# رسايل اتمسحت من القناة (627: الخطبة اتعادت في 634)
+DELETED = {627}
+msgs = [m for m in msgs if m["id"] not in DELETED]
 
 # --- رسايل اتنشرت بعد لقطة channel_audio.json: موجودة في todo.json ووصفها اترفع بنجاح (applied ok)
 todo = {x["id"]: x for x in json.loads((DATA / "todo.json").read_text(encoding="utf-8"))}
@@ -201,7 +204,7 @@ for sh in out["sheikhs"]:
 # --- ربط كل مقطع بملفه على الجهاز (للرفع وللمعاينة المحلية) — ملف خاص مش بيتنشر
 DIRS = [Path(r"D:\الحَسَنِي\مقصوص"), ROOT / "مقصوص_كلود", SITE / "audio_from_telegram"]
 def nkey(n):
-    n = re.sub(r"(\.mp3)+$", "", n.strip())
+    n = re.sub(r"(\.mp3|\.m4a)+$", "", n.strip())
     n = re.sub(r"\s*\(\d+\)$", "", n).replace("_", " ")
     return re.sub(r"\s+", " ", n).strip()
 
