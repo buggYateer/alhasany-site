@@ -940,3 +940,11 @@ button.pl-tg:hover{background:rgba(255,255,255,.1)}
 /* القايمة مفتوحة: الموقع اللي وراها ميتحركش */
 html.menu-open,html.menu-open body{overflow:hidden}
 .drawer{overscroll-behavior:contain}
+
+/* أزرار المشايخ السريعة في صفحة الدروس */
+.qchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;padding:2px 0}
+.qchips::-webkit-scrollbar{display:none}
+.qchips button{flex:none;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap}
+.qchips button:hover{border-color:var(--gold)}
+.qchips button.on{background:var(--tint);color:var(--accent);border-color:var(--gold);font-weight:700}
+@media (max-width:860px){.qchips{margin-inline:-16px;padding-inline:16px}}

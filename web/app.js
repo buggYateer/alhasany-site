@@ -325,12 +325,21 @@ function filterPage(page, title, unit, kind, fields) {
   app.innerHTML = pageHead(title, `${base.length} ${unit}`, fbtn + shareBtn(location.pathname + location.search, title, "on-dark")) +
     `<div class="fpanel" id="fpanel"${FOPEN ? "" : " hidden"}><div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
     ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></div>
-    ${active ? `<p class="f-count">${ids.length} ${unit} حسب اختيارك</p>` : ""}` + list(`p:${page}`, ids, { limit: 30, sheikh: true, kind: !kind });
+    ${page === "lessons" ? `<div class="qchips" role="group" aria-label="اختصار المشايخ"><button data-qsh=""${sel.sheikh ? "" : ' class="on"'}>الكل</button>${DB.sheikhs.filter(x => x.main).map(x => `<button data-qsh="${x.slug}"${sel.sheikh === x.slug ? ' class="on"' : ""}>${esc(x.name)}</button>`).join("")}</div>` : ""}
+${active ? `<p class="f-count">${ids.length} ${unit} حسب اختيارك</p>` : ""}` + list(`p:${page}`, ids, { limit: 30, sheikh: true, kind: !kind });
 }
 document.addEventListener("change", e => {
   const s = e.target.closest("[data-f]"); if (!s) return;
   const q = new URLSearchParams(location.search);
   if (s.value && !(s.dataset.f === "order" && s.value === "new")) q.set(s.dataset.f, s.value); else q.delete(s.dataset.f);
+  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+  route(true);
+});
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-qsh]"); if (!b) return;
+  const q = new URLSearchParams(location.search); q.delete("series");
+  if (b.dataset.qsh) q.set("sheikh", b.dataset.qsh); else q.delete("sheikh");
   history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
   route(true);
 });
