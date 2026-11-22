@@ -120,9 +120,16 @@ function home() {
 }
 
 /* صفحة الشيخ: الأقسام على اليمين (تابات فوق في الموبايل) والدروس على الشمال */
+const shLessons = sh => [...sh.lesson, ...(sh.series || []).flatMap(seriesIds)];
+const shAll = sh => [...shLessons(sh), ...sh.khutba, ...sh.tilawa, ...sh.other];
 function sheikhTabs(sh) {
-  const tabs = (sh.series || []).map(s => ({ id: s.key, t: s.title, n: seriesIds(s).length, group: "السلاسل" }));
-  for (const k of ["lesson", "khutba", "tilawa", "other"]) if (sh[k].length) tabs.push({ id: k, t: k === "lesson" && sh.series ? "دروس أخرى" : KIND[k], n: sh[k].length, group: "مقاطع" });
+  const tabs = [];
+  const nl = shLessons(sh).length;
+  if (nl) tabs.push({ id: "recent", t: "أحدث الدروس", n: nl, group: "الدروس" });
+  for (const se of sh.series || []) tabs.push({ id: se.key, t: se.title, n: seriesIds(se).length, group: "السلاسل" });
+  if (sh.lesson.length && sh.series) tabs.push({ id: "lesson", t: "دروس متفرقة", n: sh.lesson.length, group: "السلاسل" });
+  for (const k of ["khutba", "tilawa", "other"]) if (sh[k].length) tabs.push({ id: k, t: KIND[k], n: sh[k].length, group: "مقاطع أخرى" });
+  if (!tabs.length || (!sh.series && sh.lesson.length && !nl)) tabs.unshift({ id: "lesson", t: KIND.lesson, n: sh.lesson.length, group: "الدروس" });
   return tabs;
 }
 function sheikhPage(key, sel) {
@@ -135,25 +142,32 @@ function sheikhPage(key, sel) {
     if (t.group !== g) { g = t.group; side += `<h4>${g}</h4>`; }
     side += `<button role="tab" data-tab="${t.id}" aria-selected="${t.id === active.id}">${esc(t.t)} <b>${t.n}</b></button>`;
   }
+  const last = newest(shAll(sh)).find(i => DB.lessons[i].p) || newest(shAll(sh))[0];
+  LISTS["sh-last"] = [last];
+  const L = DB.lessons[last];
   app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(sh.name)}</div>
-  <header class="sh-head">${arch(sh)}<div><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${count(sh)} مقطع</p></div></header>
+  <header class="sh-head">${arch(sh)}<div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
+  ${last ? `<div class="latest-card"><button class="play" data-play="${last}" data-list="sh-last" ${L.p ? "" : "disabled"} aria-label="تشغيل أحدث مقطع">${SVG_PLAY}</button>
+    <div class="txt"><small>أحدث مقطع</small><div class="t">${esc(L.t)}</div><div class="m">${esc(hijri(L.h))}${L.d ? " — " + esc(L.d) : ""}</div></div></div>` : ""}
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
   renderPanel(sh, active);
 }
 function renderPanel(sh, tab) {
   const s = (sh.series || []).find(x => x.key === tab.id);
-  let body, ids;
+  let body, n, sub;
   if (s) {
-    ids = seriesIds(s);
-    body = s.sections.length > 1 ? accordion(`series:${s.key}`, s.sections) : list(`series:${s.key}`, ids);
+    // العرض من الأحدث للأقدم، و«التالي» في المشغل بيمشي بترتيب السلسلة الطبيعي
+    const key = `series:${s.key}`, asc = seriesIds(s);
+    const secs = s.sections.map(x => ({ t: x.t, ids: newest(x.ids) })).sort((a, b) => b.ids[0] - a.ids[0]);
+    body = secs.length > 1 ? accordion(key, secs) : list(key, secs[0].ids);
+    LISTS[key] = asc;
+    n = asc.length; sub = "الأحدث الأول";
   } else {
-    ids = newest(sh[tab.id]);
+    const ids = newest(tab.id === "recent" ? shLessons(sh) : sh[tab.id]);
     body = list(`${sh.key}:${tab.id}`, ids, { limit: 15 });
+    n = ids.length; sub = "الأحدث الأول";
   }
-  const listKey = s ? `series:${s.key}` : `${sh.key}:${tab.id}`;
-  const first = ids.find(i => DB.lessons[i].p);
-  $("#panel").innerHTML = `<div class="panel-h"><div><h2>${esc(tab.t)}</h2><p>${ids.length} مقطع${s ? " بالترتيب" : "، الأحدث الأول"}</p></div>
-    ${first ? `<button class="play-all" data-play="${first}" data-list="${listKey}">${SVG_PLAY}${s ? "شغّل من الأول" : "شغّل الأحدث"}</button>` : ""}</div>${body}`;
+  $("#panel").innerHTML = `<div class="panel-h"><div><h2>${esc(tab.t)}</h2><p>${n} مقطع، ${sub}</p></div></div>${body}`;
 }
 
 /* صفحات المنيو */
@@ -241,13 +255,31 @@ function play(id, listKey) {
   audio.play().catch(() => {});
   $("#player").hidden = false;
   $("#plTitle").textContent = (L.n ? L.n + ". " : "") + L.t;
-  $("#plSub").textContent = sheikhName(id) || "مسجد الحسني";
+  const se = seriesOf(id);
+  $("#plSub").textContent = (sheikhName(id) ? "الشيخ " + sheikhName(id) : "مسجد الحسني") + (se ? " — " + se.title : "");
   $("#plTg").href = TG + id;
   if ("mediaSession" in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: L.t, artist: sheikhName(id), album: "مسجد الحسني", artwork: [{ src: "/logo.png", sizes: "256x256", type: "image/png" }] });
   }
   refreshRows();
 }
+/* المشغل الكبير (بالضغط على المشغل الصغير) */
+const player = $("#player");
+function expand(on) {
+  player.classList.toggle("expanded", on);
+  document.body.style.overflow = on ? "hidden" : "";
+  $("#plMin").hidden = !on;
+}
+player.addEventListener("click", e => {
+  if (player.classList.contains("expanded")) return;
+  if (e.target.closest("button, a, input, .speed-menu")) return;
+  expand(true);
+});
+$("#plMin").onclick = () => expand(false);
+$("#plClose").onclick = () => {
+  savePos(); audio.pause(); audio.removeAttribute("src"); audio.load();
+  cur = null; queue = []; qi = -1; expand(false); player.hidden = true; refreshRows();
+};
 function step(d) { if (queue.length && qi + d >= 0 && qi + d < queue.length) { qi += d; play(queue[qi]); } }
 function savePos() { if (cur && audio.currentTime > 5 && part === 1) store.set("pos:" + cur, Math.floor(audio.currentTime)); }
 function refreshRows() {
@@ -306,7 +338,7 @@ function menu(open) {
 }
 menuBtn.onclick = () => menu(true);
 $("#menuClose").onclick = scrim.onclick = () => menu(false);
-document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); speedOpen(false); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); else if (!speedMenu.hidden) speedOpen(false); else expand(false); } });
 function buildDrawer() {
   const item = (href, t, n) => `<a href="${href}">${t}${n ? ` <small>${n}</small>` : ""}</a>`;
   const kh = Object.values(DB.lessons).filter(L => L.k === "khutba").length, ti = Object.values(DB.lessons).filter(L => L.k === "tilawa").length;
