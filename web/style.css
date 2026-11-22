@@ -528,3 +528,20 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
 .duo2 .feature,.duo2 .duo2-ti{grid-area:auto}
 .duo2 .sec-h{margin-top:22px}
 @media (min-width:861px){.duo2 .feature{margin-top:22px;height:calc(100% - 22px)}}
+
+/* زرار الوضع الليلي */
+.theme-btn{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:none;color:#fff;display:grid;place-items:center}
+.theme-btn:hover{background:rgba(255,255,255,.12)}
+.theme-btn .ms{font-size:24px}
+.nav + .theme-btn{margin-inline-start:8px}
+.theme-btn + .search-btn{margin-inline-start:0}
+@media (max-width:860px){.nav + .theme-btn{margin-inline-start:auto}}
+/* نفس ألوان الوضع الليلي لما الزائر يختاره بالزرار */
+:root[data-theme="dark"]{--link:#8bb6ff;scrollbar-color:#3a4870 transparent}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3a4870}
+:root[data-theme="dark"] .b-lesson{background:#26345c;color:#c8d4f5}
+:root[data-theme="dark"] .b-khutba{background:#4a2433;color:#f2c6d4}
+:root[data-theme="dark"] .b-tilawa{background:#1f4029;color:#bfe6c9}
+:root[data-theme="dark"] .more{color:var(--gold)}
+.brand span{white-space:nowrap}
+@media (max-width:600px){.brand{font-size:18px;gap:8px}.brand img{width:36px;height:36px}.top .wrap{gap:4px}.theme-btn,.search-btn,.menu-btn{width:38px;height:38px}}

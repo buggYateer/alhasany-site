@@ -446,6 +446,18 @@ speedBtn.onclick = e => { e.stopPropagation(); speedOpen(speedMenu.hidden); };
 speedMenu.onclick = e => { const b = e.target.closest("[data-speed]"); if (b) { setSpeed(+b.dataset.speed); speedOpen(false); } };
 document.addEventListener("click", e => { if (!e.target.closest(".speed")) speedOpen(false); });
 
+/* الوضع النهاري / الليلي (الاختيار بيتحفظ على جهاز الزائر) */
+const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+function paintTheme() {
+  const d = isDark();
+  $("#themeIcon").textContent = d ? "light_mode" : "dark_mode";
+  $("#themeBtn").setAttribute("aria-label", d ? "الوضع النهاري" : "الوضع الليلي");
+  document.querySelector('meta[name="theme-color"]').content = d ? "#0f1626" : "#1e2a4a";
+}
+$("#themeBtn").onclick = () => { const t = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; store.set("theme", t); try { localStorage.setItem("theme", t); } catch {} paintTheme(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintTheme);
+paintTheme();
+
 /* المنيو الجانبي */
 const drawer = $("#drawer"), scrim = $("#scrim"), menuBtn = $("#menuBtn");
 function menu(open) {
