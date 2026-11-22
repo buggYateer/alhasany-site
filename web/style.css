@@ -652,3 +652,12 @@ h1,h2,h3{font-weight:600}
   .player:not(.expanded) .pl-dl{display:grid}
   .player:not(.expanded) .pl-tg:not(.pl-dl){display:none}
 }
+
+/* الصف كله بيشغّل، واسم الشيخ لينك لصفحته */
+.row{cursor:pointer;transition:background .12s}
+.row:hover{background:var(--surface-2)}
+.row.playing:hover{background:var(--tint)}
+.row .m a.sh{color:var(--gold-d);font-weight:600}
+.row .m a.sh:hover{text-decoration:underline;text-underline-offset:3px}
+:root[data-theme="dark"] .row .m a.sh{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .row .m a.sh{color:var(--gold)}}

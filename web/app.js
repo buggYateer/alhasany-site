@@ -67,7 +67,8 @@ function row(id, listKey, showSheikh, showKind) {
   const L = DB.lessons[id];
   const pos = store.get("pos:" + id, 0), dur = parseDur(L.d);
   const pct = pos && dur ? Math.min(100, pos / dur * 100) : 0;
-  const meta = [["sh", showSheikh && sheikhName(id)], ["dt", hijri(L.h)], ["du", L.d]].filter(x => x[1]).map(([c, x]) => `<span class="${c}">${esc(x)}</span>`).join("");
+  const shObj = sheikhOf(id);
+  const meta = (showSheikh && shObj ? `<a class="sh" href="/s/${shObj.slug}">${esc(shObj.name)}</a>` : "") + [["dt", hijri(L.h)], ["du", L.d]].filter(x => x[1]).map(([c, x]) => `<span class="${c}">${esc(x)}</span>`).join("");
   return `<div class="row${cur === id ? " playing" : ""}" data-id="${id}">
     <button class="play" data-play="${id}" data-list="${listKey}" ${L.p ? "" : 'disabled title="الملف ده على تليجرام بس"'} aria-label="تشغيل ${esc(L.t)}">
       <svg viewBox="0 0 24 24">${cur === id && !audio.paused ? ICON_PAUSE : ICON_PLAY}</svg></button>
@@ -514,6 +515,8 @@ document.addEventListener("click", e => {
     }
     return;
   }
+  const rowEl = e.target.closest(".row");
+  if (rowEl && !e.target.closest("a, button")) { const pb = rowEl.querySelector("[data-play]:not([disabled])"); if (pb) { play(+pb.dataset.play, pb.dataset.list); return; } }
   const b = e.target.closest("[data-play]");
   if (b) { play(+b.dataset.play, b.dataset.list); return; }
   const tab = e.target.closest("[data-tab]");
