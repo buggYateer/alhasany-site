@@ -174,6 +174,11 @@ ramadan = [m["id"] for m in msgs if "رمضان 1447" in m["t"]]
 # مقاطع من غير شيخ معروف ونازلة وسط ليالي رمضان (زي «تذكرة مع بداية الاعتكاف») تتبع رمضان
 ramadan += [i for i in lessons if not lessons[i]["s"] and min(ramadan) < i < max(ramadan) and i not in ramadan]
 ramadan.sort()
+# تصحيح الشيخ لمقاطع معروفة (بكلام صاحب القناة) — بعد تحديد مقاطع رمضان
+SO = SITE / "fixes" / "sheikh_overrides.json"
+for k, v in (json.loads(SO.read_text(encoding="utf-8")) if SO.exists() else {}).items():
+    if int(k) in lessons:
+        lessons[int(k)]["s"] = v
 for i in ramadan:
     lessons[i]["t"] = re.sub(r"\.mp3$", "", [m for m in msgs if m["id"] == i][0]["t"].split("||")[0]).strip()
 sheikhs = {}

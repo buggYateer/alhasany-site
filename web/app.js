@@ -199,6 +199,8 @@ const PAGES = {
 
 PAGES.sheikhs = PAGES.weekly;
 
+let FOPEN = false;
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("fbox")) FOPEN = e.target.open; }, true);
 /* صفحة فيها فلاتر (الشيخ / الشهر / السورة / السلسلة) — الاختيارات بتتحفظ في اللينك */
 const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
 function filterPage(page, title, unit, kind, fields) {
@@ -221,10 +223,11 @@ function filterPage(page, title, unit, kind, fields) {
     const keys = Object.keys(cnt).sort(F.sort || ((a, b) => cnt[b] - cnt[a]));
     return `<label class="flt"><span>${F.label}</span><select data-f="${f}"><option value="">${F.all}</option>${keys.map(k => `<option value="${esc(k)}"${k === sel[f] ? " selected" : ""}>${esc(F.name(k))} (${cnt[k]})</option>`).join("")}</select></label>`;
   }).join("");
-  const active = fields.some(f => sel[f]) || order === "old";
+  const nActive = fields.filter(f => sel[f]).length + (order === "old" ? 1 : 0), active = nActive > 0;
   app.innerHTML = pageHead(title, `${base.length} ${unit}`) +
-    `<div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
-    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div>
+    `<details class="fbox"${FOPEN ? " open" : ""}><summary><span class="ms" aria-hidden="true">tune</span>فلترة وترتيب${active ? ` <b class="badge">${nActive}</b>` : ""}</summary>
+    <div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
+    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></details>
     <p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true });
 }
 document.addEventListener("change", e => {
@@ -235,10 +238,24 @@ document.addEventListener("change", e => {
   route(true);
 });
 
+/* أقسام ليالي رمضان حسب عنوان المقطع */
+const RM_TYPES = [
+  { id: "lessons", t: "الدروس", icon: "menu_book", test: L => L.k === "lesson" && !/تهجد|فجر/.test(L.t) },
+  { id: "tarawih", t: "التراويح", icon: "nights_stay", test: L => /^(تلاوة|عشاء) ليلة/.test(L.t) },
+  { id: "tahajjud", t: "التهجد", icon: "bedtime", test: L => /تهجد/.test(L.t) },
+  { id: "other", t: "الفجر والجمعة", icon: "wb_twilight", test: () => true },
+];
+const rmType = L => RM_TYPES.find(x => x.test(L)).id;
 function collectionPage(key) {
   const c = DB.collections.find(x => x.key === key);
   if (!c) return notFound();
-  app.innerHTML = pageHead(c.title, `${c.ids.length} مقطع: التراويح والتهجد والدروس`) + list(`c:${key}`, c.ids, { sheikh: true });
+  const type = new URLSearchParams(location.search).get("type") || "";
+  const groups = RM_TYPES.map(x => ({ ...x, ids: c.ids.filter(i => rmType(DB.lessons[i]) === x.id) })).filter(x => x.ids.length);
+  const cur_ = groups.find(g => g.id === type);
+  const ids = cur_ ? cur_.ids : c.ids;
+  app.innerHTML = pageHead(c.title, `${c.ids.length} مقطع`) +
+    `<nav class="rm-tabs" aria-label="أقسام رمضان"><a href="${location.pathname}" class="${cur_ ? "" : "on"}">الكل <small>${c.ids.length}</small></a>${groups.map(g => `<a href="${location.pathname}?type=${g.id}" class="${cur_ && cur_.id === g.id ? "on" : ""}"><span class="ms" aria-hidden="true">${g.icon}</span>${g.t} <small>${g.ids.length}</small></a>`).join("")}</nav>` +
+    list(`c:${key}:${type}`, ids, { sheikh: true });
 }
 function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
 
