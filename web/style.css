@@ -589,3 +589,26 @@ h1,h2,h3{font-weight:700;letter-spacing:0}
 :root[data-theme="dark"] .side button[aria-selected="true"]{background:var(--gold);color:var(--navy-d)}
 :root[data-theme="dark"] .side button[aria-selected="true"] b{color:var(--navy-d)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side button[aria-selected="true"]{background:var(--gold);color:var(--navy-d)}:root:not([data-theme="light"]) .side button[aria-selected="true"] b{color:var(--navy-d)}}
+
+/* تهدئة: خطوط أصغر وأخف، ومسافات أوسع */
+h1,h2,h3{font-weight:600}
+.brand{font-size:20px;font-weight:600}
+.nav a{font-size:14.5px}
+.sec-h{margin:30px 0 14px;padding:10px 16px}
+.sec-h h2{font-size:18px;font-weight:600}
+.panel-h h2{font-size:17px;font-weight:600}
+.page-h h1{font-size:26px;font-weight:600}
+.sh-head h1{font-size:26px;font-weight:600}
+.feature h2{font-size:22px;font-weight:600}
+.cat b{font-size:15.5px;font-weight:600}
+.sh-card .name{font-size:17.5px;font-weight:600}
+.cv-text b{font-size:clamp(14px,6.4cqw,23px);font-weight:600;line-height:1.4}
+.lcover .cv-text b{font-size:clamp(12.5px,5cqw,17px);font-weight:600;-webkit-line-clamp:3}
+.cv-text small,.cv-text i{font-size:clamp(10.5px,3cqw,13px)}
+.sc-body{padding:11px 14px 13px}
+.sc-body h3{font-size:15px;font-weight:600;line-height:1.55}
+.lesson-card .sc-body h3{font-size:14.5px;font-weight:600}
+.sc-body p{font-size:13px}
+.row .t{font-weight:500}
+.card-row,.card-grid,.series-row{gap:16px}
+@media (max-width:600px){.sec-h h2{font-size:16.5px}.page-h h1,.sh-head h1{font-size:22px}.feature h2{font-size:20px}.cat b{font-size:14px}}
