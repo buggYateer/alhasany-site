@@ -368,7 +368,7 @@ function play(id, listKey) {
   const resume = store.get("pos:" + id, 0);
   audio.addEventListener("loadedmetadata", () => { if (resume > 5 && resume < audio.duration - 10) audio.currentTime = resume; }, { once: true });
   audio.play().catch(() => {});
-  $("#player").hidden = false;
+  $("#player").hidden = false; document.body.classList.add("has-player");
   $("#plTitle").textContent = (L.n ? L.n + ". " : "") + L.t;
   const se = seriesOf(id);
   $("#plSub").textContent = (sheikhName(id) ? "الشيخ " + sheikhName(id) : "مسجد الحسني") + (se ? " — " + se.title : "");
@@ -394,7 +394,7 @@ player.addEventListener("click", e => {
 $("#plMin").onclick = () => expand(false);
 $("#plClose").onclick = () => {
   savePos(); audio.pause(); audio.removeAttribute("src"); audio.load();
-  cur = null; queue = []; qi = -1; expand(false); player.hidden = true; refreshRows();
+  cur = null; queue = []; qi = -1; expand(false); player.hidden = true; document.body.classList.remove("has-player"); refreshRows();
 };
 function step(d) { if (queue.length && qi + d >= 0 && qi + d < queue.length) { qi += d; play(queue[qi]); } }
 function savePos() { if (cur && audio.currentTime > 5 && part === 1) store.set("pos:" + cur, Math.floor(audio.currentTime)); }

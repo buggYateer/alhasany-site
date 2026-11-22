@@ -677,3 +677,8 @@ h1,h2,h3{font-weight:600}
   .cat small{font-size:12px}
 }
 @container (min-width:760px){.row .txt{grid-template-columns:minmax(0,3.2fr) minmax(92px,.7fr) minmax(140px,.9fr) 52px}.row .m .tg-only{grid-column:2/-1;grid-row:2;justify-self:start}}
+
+/* مساحة المشغل تحت الصفحة بتتحجز بس لما يكون ظاهر */
+body,body:not(.has-player){padding-bottom:28px}
+body.has-player{padding-bottom:200px}
+@media (min-width:861px){body.has-player{padding-bottom:130px}}
