@@ -12,11 +12,14 @@ export default async function handler(req) {
 
   // الاسم من بيانات الموقع نفسه (مش من الزائر)
   const db = await fetch(new URL("/lessons.json", url)).then(r => r.json()).catch(() => null);
-  const L = db && db.lessons[id];
+  const ov = await fetch(new URL("/overrides.json", url)).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  const e = (ov.edit || {})[id] || {}, a = (ov.add || {})[id];
+  const base = (db && db.lessons[id]) || a;
+  const L = base && !e.hidden ? { ...base, ...Object.fromEntries(Object.entries(e).filter(([, v]) => v !== "" && v !== undefined)) } : null;
   if (!L || !L.p) return new Response("المقطع غير متاح للتحميل", { status: 404 });
   const p = part ? +part : 1;
   if (p < 1 || p > L.p) return new Response("الجزء غير موجود", { status: 404 });
-  const sh = (db.sheikhs.find(s => s.key === L.s) || {}).name;
+  const sh = ((db && db.sheikhs.find(s => s.key === L.s)) || {}).name;
   let name = L.t + (sh ? ` - الشيخ ${sh}` : "") + (L.p > 1 ? ` (${p})` : "");
   name = name.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 150);
 

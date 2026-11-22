@@ -24,6 +24,9 @@ def run(*cmd, check=True):
 
 
 def main():
+    # تعديلات الداشبورد بتتحفظ على GitHub مباشرة — نجيبها الأول قبل أي push
+    if not DRY:
+        subprocess.run(["git", "pull", "--rebase", "--autostash", "-q"], cwd=SITE, check=False)
     subprocess.run([sys.executable, str(SITE / "tools" / "fetch_views.py")], check=False)
     subprocess.run([sys.executable, str(SITE / "tools" / "build_data.py")], check=True)
     amap = json.loads((SITE / "tools" / "audio_map.json").read_text(encoding="utf-8"))
@@ -67,7 +70,7 @@ def main():
 
     if "--no-push" in sys.argv:
         return
-    run("git", "add", "-A", "web", "tools", "fixes", "api", "README.md", ".gitignore", "vercel.json")
+    run("git", "add", "-A", "web", "tools", "fixes", "api", ".github", "README.md", ".gitignore", "vercel.json")
     if run("git", "status", "--porcelain", check=False).strip() or DRY:
         run("git", "commit", "-m", "تحديث الموقع")
         run("git", "push")

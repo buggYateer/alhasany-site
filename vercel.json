@@ -4,7 +4,11 @@
   "outputDirectory": "web",
   "rewrites": [
     {
-      "source": "/((?!api/|audio/).*)",
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/((?!api/|audio/|admin).*)",
       "destination": "/index.html"
     }
   ]

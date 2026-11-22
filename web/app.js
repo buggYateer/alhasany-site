@@ -172,6 +172,7 @@ function home() {
     <article class="feature"><small>أحدث درس</small><h2>${esc(L.t)}</h2><p>${esc(sheikhName(latest) ? "الشيخ " + sheikhName(latest) : "")}${L.h ? " — " + esc(hijri(L.h)) : ""}</p>
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </div>
+  ${(DB.featured || []).length ? (LISTS.featured = DB.featured.slice(0, 8), secH("مختارات") + `<div class="card-row">${LISTS.featured.map(i => lessonCard(i, "featured")).join("")}</div>`) : ""}
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
   ${(() => {
     const lat = all.slice(0, 4), pop = popularPicks(); LISTS.latest = lat; LISTS.popular = pop;
@@ -553,9 +554,48 @@ document.addEventListener("click", e => {
   }
 });
 
-fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
+/* تعديلات الداشبورد (web/overrides.json): تعديل/إخفاء/نقل/إضافة مقاطع فوق البيانات الأصلية */
+function applyOverrides(o) {
+  if (!o) return;
+  const LISTK = ["lesson", "khutba", "tilawa", "other"];
+  const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
+  const dropEverywhere = (id, keepSeries) => {
+    for (const sh of DB.sheikhs) {
+      for (const k of LISTK) sh[k] = sh[k].filter(x => x !== id);
+      if (!keepSeries) for (const se of sh.series || []) for (const sec of se.sections) sec.ids = sec.ids.filter(x => x !== id);
+    }
+  };
+  const inSeries = id => allSeries().some(([se]) => se.sections.some(sec => sec.ids.includes(id)));
+  const entries = [...Object.entries(o.add || {}).map(([k, v]) => [k, v, true]), ...Object.entries(o.edit || {}).map(([k, v]) => [k, v, false])];
+  for (const [k, e, isNew] of entries) {
+    const id = +k;
+    if (isNew && !DB.lessons[k]) DB.lessons[k] = { t: e.t || "", s: e.s || "", k: e.k || "lesson", h: e.h || "", d: e.d || "", p: e.p || 0 };
+    const L = DB.lessons[k]; if (!L) continue;
+    if (e.hidden) { delete DB.lessons[k]; dropEverywhere(id); for (const c of DB.collections) c.ids = c.ids.filter(x => x !== id); continue; }
+    for (const f of ["t", "s", "k", "h", "d", "p"]) if (e[f] !== undefined && e[f] !== "") L[f] = e[f];
+    if (e.series !== undefined) {
+      dropEverywhere(id);
+      const hit = allSeries().find(([se]) => se.key === e.series);
+      if (hit) {
+        const [se] = hit; let sec = se.sections.find(x => (x.t || "") === (e.sec || "")) || se.sections[0];
+        if (!sec) { sec = { t: e.sec || "", ids: [] }; se.sections.push(sec); }
+        sec.ids.push(id); sec.ids.sort((a, b) => a - b);
+      }
+    } else dropEverywhere(id, true);
+    if (!inSeries(id)) {
+      const sh = DB.sheikhs.find(x => x.key === L.s);
+      if (sh && LISTK.includes(L.k)) { sh[L.k].push(id); sh[L.k].sort((a, b) => a - b); }
+    }
+  }
+  DB.featured = (o.featured || []).filter(i => DB.lessons[i]);
+}
+Promise.all([
+  fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()),
+  fetch("/overrides.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null),
+]).then(([d, o]) => {
   DB = d;
   DB.byKey = Object.fromEntries(DB.sheikhs.map(s => [s.key, s]));
+  try { applyOverrides(o); } catch (e) { console.error("overrides", e); }
   DB.bySlug = Object.fromEntries(DB.sheikhs.map(s => [s.slug, s]));
   // كلام إضافي للبحث: اسم السلسلة والقسم ونوع المقطع
   DB.ctx = {};
