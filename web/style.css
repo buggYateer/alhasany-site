@@ -288,3 +288,5 @@ main.wrap{padding-top:24px;padding-bottom:8px}
 :root[data-theme="dark"]{--link:#8bb6ff}
 .see-all,.see-all:hover{background:none;color:var(--link);padding:4px 2px;border-radius:4px;font-weight:600;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1.5px}
 .see-all:hover{text-decoration-thickness:2.5px}
+.see-all,.see-all:hover{text-decoration:none}
+.see-all:hover{opacity:.8}
