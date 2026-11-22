@@ -322,7 +322,7 @@ function expand(on) {
   $("#plMin").hidden = !on;
 }
 player.addEventListener("click", e => {
-  if (player.classList.contains("expanded") || window.matchMedia("(min-width: 861px)").matches) return;
+  if (player.classList.contains("expanded")) return;
   if (e.target.closest("button, a, input, .speed-menu")) return;
   expand(true);
 });

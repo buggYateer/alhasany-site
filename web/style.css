@@ -406,3 +406,13 @@ html,body{max-width:100%;overflow-x:clip}
   .player:not(.expanded) .pl-now{cursor:default}
   body{padding-bottom:120px}
 }
+@media (min-width:861px){
+  .player:not(.expanded) .pl-inner{grid-template-columns:60px minmax(0,1.2fr) minmax(380px,560px) minmax(0,1fr);padding:12px 24px}
+  .player:not(.expanded) .pl-art{width:60px;height:60px;cursor:pointer}
+  .player:not(.expanded) .pl-info{cursor:pointer}
+  .player:not(.expanded) .pl-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:16.5px;line-height:1.5}
+  .player:not(.expanded) .pl-sub{font-size:14px}
+  .player:not(.expanded) .pl-info:hover .pl-title{text-decoration:underline;text-underline-offset:4px}
+  .player.expanded .pl-inner{max-width:560px}
+  body{padding-bottom:130px}
+}
