@@ -13,6 +13,8 @@
 | `tools/build_data.py` | يبني `web/lessons.json` من `../data` و`../scripts/gen_series.py` (قراءة بس) |
 | `tools/serve.py` | معاينة على الجهاز: `python tools/serve.py` ← http://localhost:8765 (الصوت من الملفات المحلية) |
 | `tools/update_site.py` | **التحديث الأسبوعي بخطوة واحدة**: يبني ← يرفع الصوت الجديد على GitHub Releases ← push |
+| `api/dl.js` | التحميل باسم الدرس بالعربي: `/api/dl?id=640` (دالة على Vercel بتجيب الملف من GitHub وتديه اسم «العنوان - الشيخ.mp3») |
+| `fixes/` | تصحيحات بموافقة صاحب القناة: وصف (`fix_*.json` بعد تطبيقه في `applied.json`)، عناوين السلاسل، تواريخ، شيخ |
 | `tools/missing_audio.txt` | مقاطع في القناة ملفها مش لاقيه على الجهاز (بتظهر في الموقع بزرار تليجرام بس) |
 
 ## مصدر البيانات
