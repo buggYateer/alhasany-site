@@ -103,6 +103,21 @@ function cover(se, sh) {
     <img class="cv-logo" src="/logo.png" alt="">
   </div>`;
 }
+/* صورة لكل مقطع (نفس قالب الغلاف): لون الشيخ + نوع المقطع + العنوان */
+const secOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) for (const x of se.sections) if (x.ids.includes(+id)) return x.t || cleanTitle(se.title); return ""; };
+function lessonCover(id) {
+  const L = DB.lessons[id], sh = DB.byKey[L.s] || { name: "", key: "" };
+  const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
+  const tag = secOf(id) || (BADGE[L.k] || [""])[0];
+  return `<div class="cover lcover ${TONES[sh.key] || "t1"}" aria-hidden="true">
+    <div class="cv-arch">${face}</div>
+    <div class="cv-text"><small>${esc(tag)}</small><b>${esc(L.t)}</b>${sh.name ? `<i>الشيخ ${esc(sh.name)}</i>` : ""}</div>
+    <img class="cv-logo" src="/logo.png" alt="">
+  </div>`;
+}
+const fmtViews = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + " ألف" : String(n);
+const lessonCard = (id, key) => { const L = DB.lessons[id]; return `<button class="lesson-card" data-play="${id}" data-list="${key}" ${L.p ? "" : "disabled"}>${lessonCover(id)}<div class="sc-body"><h3>${BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}${esc(L.t)}</h3><p>${esc(sheikhName(id) || "")}${L.v ? ` · ${fmtViews(L.v)} مشاهدة` : ""}</p></div></button>`; };
+const popularIds = () => allIds().filter(i => DB.lessons[i].v).sort((a, b) => DB.lessons[b].v - DB.lessons[a].v);
 const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.key}">${cover(se, sh)}<div class="sc-body"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)} · ${seriesIds(se).length} درس</p></div></a>`;
 const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
 const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${s.slug}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
@@ -116,9 +131,9 @@ function cats() {
   const n = k => Object.entries(DB.lessons).filter(([i, L]) => L.k === k && !inC(i)).length;
   const c = DB.collections[0];
   return [
+    { href: "/tilawat", icon: "graphic_eq", t: "التلاوات", n: n("tilawa") },
     { href: "/lessons", icon: "menu_book", t: "الدروس", n: n("lesson") },
     { href: "/khutab", icon: "mic", t: "خطب الجمعة", n: n("khutba") },
-    { href: "/tilawat", icon: "graphic_eq", t: "التلاوات", n: n("tilawa") },
     ...(c ? [{ href: `/c/${c.key}`, icon: "bedtime", t: "التراويح والتهجد", n: c.ids.length }] : []),
   ];
 }
@@ -136,7 +151,9 @@ function home() {
     <article class="feature"><small>أحدث درس</small><h2>${esc(L.t)}</h2><p>${esc(sheikhName(latest) ? "الشيخ " + sheikhName(latest) : "")}${L.h ? " — " + esc(hijri(L.h)) : ""}</p>
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </section>
+  ${(() => { const ti = all.filter(i => DB.lessons[i].k === "tilawa" && !DB.collections.some(c => c.ids.includes(i))).slice(0, 5); return secH("أحدث التلاوات", "", "tilawat", "/tilawat") + list("home-tilawat", ti, { sheikh: true }); })()}
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
+  ${(() => { const ids = popularIds().slice(0, 4); LISTS.popular = ids; return ids.length ? secH("الأكثر استماعًا", "", "popular", "/popular") + `<div class="card-row">${ids.map(i => lessonCard(i, "popular")).join("")}</div>` : ""; })()}
   ${secH("السلاسل", "", "series", "/series")}<div class="series-row">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>
   ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true, kind: true })}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
@@ -228,6 +245,7 @@ function renderPanel(sh, tab) {
 const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
+  popular: () => { const ids = popularIds().slice(0, 10); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "حسب عدد المشاهدات على قناة التليجرام") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
   },
@@ -419,7 +437,7 @@ function buildDrawer() {
   const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
   $("#drawerNav").innerHTML =
     `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
-    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
+    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
     `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }

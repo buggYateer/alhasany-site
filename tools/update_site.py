@@ -24,6 +24,7 @@ def run(*cmd, check=True):
 
 
 def main():
+    subprocess.run([sys.executable, str(SITE / "tools" / "fetch_views.py")], check=False)
     subprocess.run([sys.executable, str(SITE / "tools" / "build_data.py")], check=True)
     amap = json.loads((SITE / "tools" / "audio_map.json").read_text(encoding="utf-8"))
     done = set(json.loads(UPLOADED.read_text(encoding="utf-8"))) if UPLOADED.exists() else set()

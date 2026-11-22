@@ -201,6 +201,13 @@ def weight(sh):
     total = sum(len(sh[k]) for k in ("lesson", "khutba", "tilawa", "other"))
     return (1, -total)
 
+# عدد المشاهدات على تليجرام (tools/fetch_views.py)
+VW = SITE / "tools" / "views.json"
+views = json.loads(VW.read_text(encoding="utf-8")) if VW.exists() else {}
+for k, L in lessons.items():
+    if str(k) in views:
+        L["v"] = views[str(k)]
+
 for sh in sheikhs.values():
     sh["main"] = sh["key"] in MAIN
     for ext in ("jpg", "jpeg", "png", "webp"):
