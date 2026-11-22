@@ -845,3 +845,23 @@ body.has-player .toast{bottom:150px}
 .player.expanded .pl-side .pl-tg .ms{font-size:22px;color:#fff}
 .player.expanded .pl-side .pl-tg svg{width:20px;height:20px}
 .player.expanded .pl-speed{height:46px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18)}
+
+/* غلاف السلسلة فوق دروسها (بانر عريض) */
+.panel-cover{container-type:inline-size;margin-bottom:12px;border-radius:14px;overflow:hidden}
+.panel-cover .cover{aspect-ratio:3.4/1;border-radius:14px}
+.panel-cover .cv-text b{font-size:clamp(18px,4.2cqw,32px)}
+.panel-cover .cv-icon{font-size:clamp(60px,16cqw,140px)!important}
+@media (max-width:600px){.panel-cover .cover{aspect-ratio:2.3/1}}
+
+/* العمود الجانبي: العناوين الرئيسية غامقة، والمختار فاتح */
+.side h4{background:var(--navy);color:#fff}
+.side button[aria-selected="true"]{background:var(--tint);color:var(--accent);font-weight:700;box-shadow:inset -4px 0 0 var(--gold)}
+.side button[aria-selected="true"] b{color:var(--accent);opacity:.8}
+:root[data-theme="dark"] .side h4{background:var(--navy-d);color:var(--gold)}
+:root[data-theme="dark"] .side button[aria-selected="true"]{background:var(--tint);color:#fff}
+:root[data-theme="dark"] .side button[aria-selected="true"] b{color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side h4{background:var(--navy-d);color:var(--gold)}:root:not([data-theme="light"]) .side button[aria-selected="true"]{background:var(--tint);color:#fff}:root:not([data-theme="light"]) .side button[aria-selected="true"] b{color:#fff}}
+/* الموبايل: التابات زي ما هي (المختار كحلي) */
+@media (max-width:860px){.side button[aria-selected="true"]{background:var(--navy);color:#fff;box-shadow:none}.side button[aria-selected="true"] b{color:#fff}}
+.panel-h.slim{padding:8px 16px}
+.panel-h.slim p{font-size:15px;font-weight:600;color:#fff}

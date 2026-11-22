@@ -263,7 +263,7 @@ function renderPanel(sh, tab) {
     body = list(`${sh.key}:${tab.id}`, ids, { limit: 15 });
     n = ids.length; sub = "الأحدث الأول";
   }
-  $("#panel").innerHTML = `<div class="panel-h"><div><h2>${esc(tab.t)}</h2><p>${n} مقطع، ${sub}</p></div>${shareBtn(`/s/${sh.slug}/${tab.id}`, `${tab.t} — الشيخ ${sh.name}`, "on-dark")}</div>${body}`;
+  $("#panel").innerHTML = (s ? `<div class="panel-cover">${cover(s, sh)}</div>` : "") + `<div class="panel-h${s ? " slim" : ""}"><div>${s ? "" : `<h2>${esc(tab.t)}</h2>`}<p>${n} مقطع، ${sub}</p></div>${shareBtn(`/s/${sh.slug}/${tab.id}`, `${tab.t} — الشيخ ${sh.name}`, "on-dark")}</div>${body}`;
 }
 
 /* صفحات المنيو */
