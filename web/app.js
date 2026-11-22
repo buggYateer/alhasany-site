@@ -91,6 +91,19 @@ function accordion(key, sections) {
     <div class="acc-b" id="${key}-${i}" hidden><div class="list" style="border:0;border-radius:0">${s.ids.map(id => row(id, key)).join("")}</div></div></section>`).join("");
 }
 const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${more ? `<a class="see-all" href="${more}">عرض الكل</a>` : small ? `<small>${esc(small)}</small>` : ""}</div>`;
+/* غلاف السلسلة (معمول بالكود): لون لكل شيخ + قوس المحراب + صورة الشيخ لو موجودة */
+const TONES = { "يحيى_زكريا": "t1", "أحمد_عبدالسلام": "t2", "سيد_عبدالعال": "t3", "معاذ_زكريا": "t4" };
+const cleanTitle = t => t.replace(/^سلسلة\s+/, "").replace(/\s*\(.*?\)\s*/g, " ").trim();
+function cover(se, sh) {
+  const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc(sh.name.trim()[0] || "")}</span>`;
+  return `<div class="cover ${TONES[sh.key] || "t1"}" aria-hidden="true">
+    <div class="cv-arch">${face}</div>
+    <div class="cv-text"><small>${/^سلسلة/.test(se.title) ? "سلسلة" : "دروس"}</small><b>${esc(cleanTitle(se.title))}</b><i>الشيخ ${esc(sh.name)}</i></div>
+    <img class="cv-logo" src="/logo.png" alt="">
+  </div>`;
+}
+const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.key}">${cover(se, sh)}<div class="sc-body"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)} · ${seriesIds(se).length} درس</p></div></a>`;
+const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
 const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${s.slug}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
@@ -123,6 +136,7 @@ function home() {
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </section>
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
+  ${secH("السلاسل", "", "series", "/series")}<div class="series-row">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>
   ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true })}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
@@ -187,6 +201,7 @@ function sheikhPage(key, sel) {
   <header class="sh-head">${arch(sh)}<div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
   ${last ? `<div class="latest-card"><button class="play" data-play="${last}" data-list="sh-last" ${L.p ? "" : "disabled"} aria-label="تشغيل أحدث مقطع">${SVG_PLAY}</button>
     <div class="txt"><small>أحدث مقطع</small><div class="t">${esc(L.t)}</div><div class="m">${esc(hijri(L.h))}${L.d ? " — " + esc(L.d) : ""}</div></div></div>` : ""}
+  ${(sh.series || []).length ? `<div class="series-row compact">${sh.series.map(se => seriesCard(se, sh)).join("")}</div>` : ""}
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
   renderPanel(sh, active);
 }
@@ -213,8 +228,7 @@ const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   series: () => {
-    const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${sh.slug}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
-    app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${cards.join("")}</div>`;
+    app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
   },
   lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
   khutab: () => filterPage("khutab", "خطب الجمعة", "خطبة", "khutba", ["sheikh", "month"]),
