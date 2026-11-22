@@ -516,3 +516,15 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
   .duo{display:block}
   .duo .duo-grid{grid-template-columns:repeat(4,1fr)}
 }
+
+/* أحدث التلاوات + أحدث درس جنب بعض (كمبيوتر) */
+.hero{margin-bottom:8px}
+.duo2 .feature{margin-top:34px}
+@media (min-width:861px){
+  .duo2{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:start}
+  .duo2 .feature{margin-top:34px;min-height:0;height:calc(100% - 34px)}
+}
+@media (max-width:860px){.duo2 .feature{margin-top:20px}}
+.duo2 .feature,.duo2 .duo2-ti{grid-area:auto}
+.duo2 .sec-h{margin-top:22px}
+@media (min-width:861px){.duo2 .feature{margin-top:22px;height:calc(100% - 22px)}}
