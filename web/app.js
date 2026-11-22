@@ -153,9 +153,12 @@ function home() {
   </section>
   ${(() => { const ti = all.filter(i => DB.lessons[i].k === "tilawa" && !DB.collections.some(c => c.ids.includes(i))).slice(0, 5); return secH("أحدث التلاوات", "", "tilawat", "/tilawat") + list("home-tilawat", ti, { sheikh: true }); })()}
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
-  ${(() => { const ids = popularIds().slice(0, 4); LISTS.popular = ids; return ids.length ? secH("الأكثر استماعًا", "", "popular", "/popular") + `<div class="card-row">${ids.map(i => lessonCard(i, "popular")).join("")}</div>` : ""; })()}
+  ${(() => {
+    const lat = all.slice(0, 4), pop = popularIds().slice(0, 4); LISTS.latest = lat; LISTS.popular = pop;
+    return `<div class="duo"><section>${secH("آخر المستجدات", "", "latest", "/latest")}<div class="card-row duo-grid">${lat.map(i => lessonCard(i, "latest")).join("")}</div></section>
+      ${pop.length ? `<section>${secH("الأكثر استماعًا", "", "popular", "/popular")}<div class="card-row duo-grid">${pop.map(i => lessonCard(i, "popular")).join("")}</div></section>` : ""}</div>`;
+  })()}
   ${secH("السلاسل", "", "series", "/series")}<div class="series-row">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>
-  ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true, kind: true })}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
 

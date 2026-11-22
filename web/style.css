@@ -484,3 +484,9 @@ html,body{max-width:100%;overflow-x:clip}
   .card-grid{grid-template-columns:1fr 1fr;gap:10px}
 }
 @media (min-width:861px){.series-row{grid-template-columns:repeat(auto-fill,minmax(196px,1fr))}}
+
+/* آخر المستجدات + الأكثر استماعًا: نصين على الكمبيوتر */
+@media (min-width:861px){
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .duo .duo-grid{grid-template-columns:1fr 1fr}
+}
