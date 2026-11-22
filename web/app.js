@@ -241,9 +241,10 @@ function sheikhPage(key, sel) {
   <header class="sh-head">${arch(sh)}<div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
   ${last ? `<div class="latest-card"><button class="play" data-play="${last}" data-list="sh-last" ${L.p ? "" : "disabled"} aria-label="تشغيل أحدث مقطع">${SVG_PLAY}</button>
     <div class="txt"><small>أحدث مقطع</small><div class="t">${esc(L.t)}</div><div class="m">${esc(hijri(L.h))}${L.d ? " — " + esc(L.d) : ""}</div></div></div>` : ""}
-  ${(sh.series || []).length ? `<div class="series-row compact">${sh.series.map(se => seriesCard(se, sh)).join("")}</div>` : ""}
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
   renderPanel(sh, active);
+  const selTab = document.querySelector('.side [aria-selected="true"]');
+  if (selTab && window.innerWidth <= 860) { const bar = selTab.parentElement; bar.scrollLeft = selTab.offsetLeft - (bar.clientWidth - selTab.clientWidth) / 2; }
 }
 function renderPanel(sh, tab) {
   const s = (sh.series || []).find(x => x.key === tab.id);

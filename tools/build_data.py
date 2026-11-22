@@ -150,6 +150,8 @@ for k, v in (json.loads(DO.read_text(encoding="utf-8")) if DO.exists() else {}).
     if int(k) in lessons:
         lessons[int(k)]["h"] = v
 
+SPLIT_KEYS = {"آفات اللسان": "afat-allisan", "سلسلة الأخلاق": "akhlaq", "الحسد": "hasad", "الثبات على الحق": "thabat",
+              "حكم الغناء والمعازف": "ghinaa", "مجلس صحيح مسلم": "sahih-muslim"}
 # --- السلاسل (بترتيب الفهرس) والعنوان اللي في الفهرس هو المعتمد
 in_series = set()
 series_by_sheikh = {}
@@ -175,7 +177,13 @@ for s in SERIES:
             in_series.add(i)
         if ids:
             secs.append({"t": sec, "ids": ids})
-    series_by_sheikh.setdefault(s["sheikh"], []).append({"key": s["key"], "title": s["title"], "sections": secs})
+    if s["title"].startswith("دروس الشيخ"):
+        # فهرس عام فيه كذا موضوع (زي دروس الشيخ سيد) → كل موضوع سلسلة لوحده على الموقع
+        for n, x in enumerate(secs, 1):
+            key = SPLIT_KEYS.get(x["t"], f'{s["key"]}-{n}')
+            series_by_sheikh.setdefault(s["sheikh"], []).append({"key": key, "title": x["t"], "sections": [{"t": "", "ids": x["ids"]}]})
+    else:
+        series_by_sheikh.setdefault(s["sheikh"], []).append({"key": s["key"], "title": s["title"], "sections": secs})
 
 # --- الصفحات حسب الشيخ
 ramadan = [m["id"] for m in msgs if "رمضان 1447" in m["t"]]
