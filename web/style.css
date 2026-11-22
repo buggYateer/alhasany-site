@@ -578,3 +578,14 @@ h1,h2,h3{font-weight:700;letter-spacing:0}
 .pl-sub{color:var(--gold);opacity:1}
 :root[data-theme="dark"] .row .m .sh,:root[data-theme="dark"] .lesson-card .sc-body p,:root[data-theme="dark"] .series-card .sc-body p{color:var(--gold)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .row .m .sh,:root:not([data-theme="light"]) .lesson-card .sc-body p,:root:not([data-theme="light"]) .series-card .sc-body p{color:var(--gold)}}
+
+/* العمود الجانبي: عناوين المجموعات فاتحة + المختار كحلي واضح */
+.side{padding:12px}
+.side h4{background:var(--tint);color:var(--accent);border:0;border-radius:8px;padding:6px 12px;font-family:var(--serif);font-size:14px;font-weight:700;margin:14px 0 6px}
+.side h4:first-child{margin-top:0}
+.side button{border-radius:10px;padding:10px 12px;margin:2px 0}
+.side button[aria-selected="true"]{background:var(--navy);color:#fff;box-shadow:none;font-weight:700}
+.side button[aria-selected="true"] b{opacity:.8;color:#fff}
+:root[data-theme="dark"] .side button[aria-selected="true"]{background:var(--gold);color:var(--navy-d)}
+:root[data-theme="dark"] .side button[aria-selected="true"] b{color:var(--navy-d)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side button[aria-selected="true"]{background:var(--gold);color:var(--navy-d)}:root:not([data-theme="light"]) .side button[aria-selected="true"] b{color:var(--navy-d)}}
