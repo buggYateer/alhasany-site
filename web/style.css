@@ -501,10 +501,6 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
 .drawer::-webkit-scrollbar-thumb{border-color:var(--surface)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){scrollbar-color:#3a4870 transparent}:root:not([data-theme="light"]) ::-webkit-scrollbar-thumb{background:#3a4870}}
 
-/* القوايم اللي بتتحرك بالعرض (موبايل): تلاشي في الطرف يوضح إن في كمان */
-@media (max-width:860px){
-  .card-row,.series-row{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 36px);mask-image:linear-gradient(to left,transparent 0,#000 36px)}
-}
 
 /* عناوين الأقسام: خلفية كحلي واضحة */
 .sec-h{background:linear-gradient(90deg,var(--navy-d),var(--navy));border:0;border-inline-start:6px solid var(--gold);padding:12px 18px}
@@ -619,8 +615,6 @@ h1,h2,h3{font-weight:600}
 @media (min-width:601px){.theme-row{display:none}}
 @media (max-width:600px){
   .top .wrap{gap:10px;height:58px}
-  .theme-btn{display:none}
-  .nav + .theme-btn + .search-btn,.search-btn{margin-inline-start:auto}
   .brand{min-width:0;gap:8px;font-size:18px}
   .brand img{width:34px;height:34px;flex:none}
   .brand span{overflow:hidden;text-overflow:ellipsis}
@@ -629,4 +623,16 @@ h1,h2,h3{font-weight:600}
   .sh-card{padding:14px 8px 12px;gap:8px}
   .sh-card .arch{width:68px}
   .sh-card .arch span{font-size:28px}
+}
+
+/* هيدر الموبايل: كل الأيقونات ظاهرة ومظبوطة */
+@media (max-width:600px){
+  .top .wrap{gap:6px;height:58px}
+  .brand{font-size:17px;gap:6px;margin-inline-end:auto}
+  .brand img{width:32px;height:32px}
+  .menu-btn,.theme-btn,.search-btn{width:36px;height:36px;margin:0}
+  .theme-btn .ms,.search-btn .ms{font-size:23px}
+  .tg-btn{width:36px;height:36px;padding:0;justify-content:center;margin:0}
+  .nav + .theme-btn{margin-inline-start:0}
+  .theme-row{display:none}
 }
