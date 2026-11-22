@@ -356,3 +356,21 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* اسم المسجد في الهيدر بنفس خط الموقع */
 .brand{font-family:var(--sans);font-size:21px;font-weight:700}
+
+/* الكمبيوتر: الفلاتر في عمود جانبي، والصفوف بأعمدة */
+@media (min-width:861px){
+  .lp{display:grid;grid-template-columns:260px 1fr;gap:22px;align-items:start}
+  .lp-side{position:sticky;top:78px}
+  .lp-side .fbox summary{display:flex;width:100%;border-radius:12px}
+  .lp-side .filters{flex-direction:column;align-items:stretch}
+  .lp-side .flt{flex:none}
+  .lp-main .f-count{margin-top:0}
+  .row .txt{display:grid;grid-template-columns:minmax(0,1fr) 150px 170px 64px;align-items:center;column-gap:16px}
+  .row .t{grid-column:1}
+  .row .m{display:contents}
+  .row .m .sh{grid-column:2;grid-row:1}
+  .row .m .dt{grid-column:3;grid-row:1}
+  .row .m .du{grid-column:4;grid-row:1;text-align:left;font-variant-numeric:tabular-nums}
+  .row .m span{font-size:14px}
+  .row .prog{grid-column:1}
+}

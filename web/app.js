@@ -61,7 +61,7 @@ function row(id, listKey, showSheikh) {
   const L = DB.lessons[id];
   const pos = store.get("pos:" + id, 0), dur = parseDur(L.d);
   const pct = pos && dur ? Math.min(100, pos / dur * 100) : 0;
-  const meta = [showSheikh && sheikhName(id), hijri(L.h), L.d].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("");
+  const meta = [["sh", showSheikh && sheikhName(id)], ["dt", hijri(L.h)], ["du", L.d]].filter(x => x[1]).map(([c, x]) => `<span class="${c}">${esc(x)}</span>`).join("");
   return `<div class="row${cur === id ? " playing" : ""}" data-id="${id}">
     <button class="play" data-play="${id}" data-list="${listKey}" ${L.p ? "" : 'disabled title="الملف ده على تليجرام بس"'} aria-label="تشغيل ${esc(L.t)}">
       <svg viewBox="0 0 24 24">${cur === id && !audio.paused ? ICON_PAUSE : ICON_PLAY}</svg></button>
@@ -218,7 +218,7 @@ const PAGES = {
 
 PAGES.sheikhs = PAGES.weekly;
 
-let FOPEN = false;
+let FOPEN = window.matchMedia("(min-width: 861px)").matches;
 document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("fbox")) FOPEN = e.target.open; }, true);
 /* صفحة فيها فلاتر (الشيخ / الشهر / السورة / السلسلة) — الاختيارات بتتحفظ في اللينك */
 const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
@@ -244,10 +244,10 @@ function filterPage(page, title, unit, kind, fields) {
   }).join("");
   const nActive = fields.filter(f => sel[f]).length + (order === "old" ? 1 : 0), active = nActive > 0;
   app.innerHTML = pageHead(title, `${base.length} ${unit}`) +
-    `<details class="fbox"${FOPEN ? " open" : ""}><summary><span class="ms" aria-hidden="true">tune</span>فلترة وترتيب${active ? ` <b class="badge">${nActive}</b>` : ""}</summary>
+    `<div class="lp"><aside class="lp-side"><details class="fbox"${FOPEN ? " open" : ""}><summary><span class="ms" aria-hidden="true">tune</span>فلترة وترتيب${active ? ` <b class="badge">${nActive}</b>` : ""}</summary>
     <div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
-    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></details>
-    <p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true });
+    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></details></aside>
+    <div class="lp-main"><p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true }) + `</div></div>`;
 }
 document.addEventListener("change", e => {
   const s = e.target.closest("[data-f]"); if (!s) return;
