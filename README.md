@@ -27,3 +27,16 @@
 python tools/update_site.py
 ```
 (`--dry` يوري هيعمل إيه من غير ما يرفع، و`--no-push` يرفع الصوت من غير ما ينشر الموقع)
+
+## الداشبورد (`/admin`)
+تعديل عنوان/شيخ/نوع/تاريخ/سلسلة أي مقطع، إخفاؤه، إضافة مقطع جديد بملفه، والمختارات — من أي جهاز بباسورد.
+- التعديلات بتتحفظ في `web/overrides.json` على GitHub (الموقع بيقراه فوق `lessons.json`)، وVercel بينشر لوحده.
+- الصوت الجديد بيترفع في `incoming/<رقم الرسالة>.mp3` و GitHub Actions (`.github/workflows/incoming.yml`) بينقله لـ Release `audio-N` ويمسحه.
+- `tools/update_site.py` بيعمل `git pull` الأول علشان ميكتبش فوق تعديلات الداشبورد.
+- الإعداد (مرة واحدة): في Vercel ← Settings ← Environment Variables:
+  - `ADMIN_PASSWORD`: باسورد الداشبورد
+  - `GITHUB_TOKEN`: Fine-grained token محصور على `alhasany-site` بصلاحية Contents: Read and write
+  - وبعدها Redeploy.
+
+## تطبيق (PWA)
+`manifest.webmanifest` + `sw.js`: الموقع يتثبت على الموبايل/الكمبيوتر كتطبيق (زرار في القائمة + شريط في الرئيسية مرة واحدة).
