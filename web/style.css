@@ -559,3 +559,6 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
 .side button[aria-selected="true"]{background:var(--gold-l);color:var(--ink);font-weight:700;box-shadow:inset -4px 0 0 var(--gold)}
 .side button[aria-selected="true"] b{opacity:.85}
 @media (max-width:860px){.side button[aria-selected="true"]{background:var(--navy);color:#fff;box-shadow:none;border-color:var(--navy)}}
+
+/* اسم المسجد في الهيدر بالدهبي (تجربة) */
+.brand span{color:var(--gold)}
