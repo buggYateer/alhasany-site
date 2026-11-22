@@ -141,6 +141,12 @@ for m in msgs:
         "h": hijri_of(m["t"], text),
     }
 
+# --- تصحيح تواريخ غلط في أسماء الملفات (بموافقة صاحب القناة)
+DO = SITE / "fixes" / "date_overrides.json"
+for k, v in (json.loads(DO.read_text(encoding="utf-8")) if DO.exists() else {}).items():
+    if int(k) in lessons:
+        lessons[int(k)]["h"] = v
+
 # --- السلاسل (بترتيب الفهرس) والعنوان اللي في الفهرس هو المعتمد
 in_series = set()
 series_by_sheikh = {}

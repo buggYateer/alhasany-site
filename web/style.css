@@ -28,7 +28,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.35;margin:0}
 /* الهيدر */
 .top{position:sticky;top:0;z-index:20;background:var(--navy-d);color:#fff}
 .top .wrap{display:flex;align-items:center;gap:10px;height:62px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:22px;font-weight:700}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:23px;font-weight:700;line-height:1.2;letter-spacing:0}
 .brand img{width:40px;height:40px;border-radius:50%}
 .nav{display:flex;gap:4px;margin-inline-start:auto}
 .nav a{padding:6px 12px;border-radius:8px;font-size:15px;opacity:.85}
@@ -48,7 +48,7 @@ main.wrap{padding-top:24px;padding-bottom:8px}
 .feature .big-play{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--navy-d);border:0;border-radius:999px;padding:10px 22px 10px 18px;font-weight:700;font-size:16px}
 .feature .big-play svg{width:22px;height:22px;fill:currentColor}
 .intro{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;gap:12px;justify-content:center}
-.intro h1{font-size:34px;color:var(--ink)}
+.intro h1{font-size:32px;color:var(--ink);line-height:1.4}
 .hero.searching{grid-template-columns:1fr;margin-bottom:0}
 .hero.searching .feature{display:none}
 .intro p{margin:0;color:var(--muted)}
