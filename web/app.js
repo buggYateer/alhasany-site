@@ -80,7 +80,7 @@ function accordion(key, sections) {
     <div class="acc-b" id="${key}-${i}" hidden><div class="list" style="border:0;border-radius:0">${s.ids.map(id => row(id, key)).join("")}</div></div></section>`).join("");
 }
 const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${more ? `<a class="see-all" href="${more}">عرض الكل</a>` : small ? `<small>${esc(small)}</small>` : ""}</div>`;
-const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="name">الشيخ ${esc(s.name)}</div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);

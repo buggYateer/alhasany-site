@@ -325,3 +325,11 @@ main.wrap{padding-top:24px;padding-bottom:8px}
 .rm-tabs a.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .rm-tabs .ms{font-size:22px}
 .rm-tabs small{font-weight:400;opacity:.75;font-size:13px}
+
+/* كروت المشايخ: نفس الارتفاع والترتيب */
+.sh-card{justify-content:flex-start}
+.sh-card .who{display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.sh-card .who small{font-size:14px;color:var(--muted);font-family:var(--sans)}
+.sh-card .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:21px}
+.sh-card .meta{margin-top:auto}
+@media (max-width:600px){.sh-card .name{font-size:18.5px}}
