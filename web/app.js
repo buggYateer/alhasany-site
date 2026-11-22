@@ -171,6 +171,11 @@ audio.addEventListener("timeupdate", () => {
   if (Math.floor(audio.currentTime) % 10 === 0) savePos();
 });
 audio.addEventListener("loadedmetadata", () => { $("#plDur").textContent = fmt(audio.duration); });
+audio.addEventListener("error", () => {
+  if (!cur) return;
+  $("#plSub").textContent = "الملف ده مش متاح على الموقع دلوقتي — اسمعه على تليجرام ←";
+  refreshRows();
+});
 audio.addEventListener("ended", () => {
   const L = DB.lessons[cur];
   if (part < L.p) { part++; audio.src = audioUrl(cur, part); audio.play(); return; }
