@@ -139,7 +139,7 @@ function popularPage() {
 const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.key}">${cover(se, sh)}<div class="sc-body"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)} · ${seriesIds(se).length} درس</p></div></a>`;
 const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
 const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card ${TONES[s.key] || "t1"}" href="/s/${s.slug}"><div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}</a>`).join("")}</div>`;
-const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
+const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}"><span class="ms" aria-hidden="true">person</span><span class="o-n">${esc(s.name)}</span><b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub, actions) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><div class="ph-t"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div><div class="ph-act">${actions !== undefined ? actions : shareBtn(location.pathname + location.search, t, "on-dark")}</div></div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
 
@@ -173,7 +173,7 @@ function home() {
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </div>
   ${(DB.featured || []).length ? (LISTS.featured = DB.featured.slice(0, 8), secH("مختارات") + `<div class="card-row">${LISTS.featured.map(i => lessonCard(i, "featured")).join("")}</div>`) : ""}
-  ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
+  ${secH("دروس الأسبوع", "", "sheikhs")}${sheikhCards(main)}
   ${(() => {
     const lat = all.slice(0, 4), pop = popularPicks(); LISTS.latest = lat; LISTS.popular = pop;
     return `<div class="duo"><section>${secH("آخر المستجدات", "", "latest", "/latest")}<div class="card-row duo-grid">${lat.map(i => lessonCard(i, "latest")).join("")}</div></section>
@@ -269,7 +269,7 @@ function renderPanel(sh, tab) {
 /* صفحات المنيو */
 const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
-  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
+  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) ; },
   popular: () => { const ids = popularPage(); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "أكثر ما استُمع إليه لكل شيخ") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;

@@ -907,3 +907,7 @@ body.has-player .toast{bottom:150px}
 button.pl-tg{border:0;background:none;font:inherit;cursor:pointer;padding:0;color:#fff;-webkit-appearance:none;appearance:none}
 button.pl-tg:hover{background:rgba(255,255,255,.1)}
 .pl-btn{-webkit-appearance:none;appearance:none}
+/* خطباء ومشايخ: أيقونة شخص قبل الاسم */
+.others a{justify-content:flex-start;gap:8px}
+.others a .ms{font-size:22px;color:var(--accent);flex:none}
+.others a .o-n{flex:1;min-width:0}
