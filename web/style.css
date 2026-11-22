@@ -379,3 +379,6 @@ html,body{max-width:100%;overflow-x:clip}
 .sh-card .who{line-height:normal;gap:6px}
 .sh-card .who small{line-height:1.4;display:block}
 .sh-card .name{line-height:1.7;padding-top:2px}
+
+/* المنيو على الموبايل أضيق */
+@media (max-width:600px){.drawer{width:min(280px,76vw);padding:12px 12px 20px}.drawer nav a{padding:8px 10px;font-size:15px}}
