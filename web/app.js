@@ -100,37 +100,51 @@ function cats() {
 
 /* الرئيسية */
 function home() {
-  const all = Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
+  const all = allIds();
   const latest = all.find(i => DB.lessons[i].p && DB.lessons[i].k === "lesson") || all[0];
   const L = DB.lessons[latest];
   const main = DB.sheikhs.filter(s => s.main), rest = DB.sheikhs.filter(s => !s.main);
   LISTS.feature = [latest];
   app.innerHTML = `
   <section class="hero">
-    <div class="intro"><h1>تسجيلات المسجد</h1><p>دروس الأسبوع وخطب الجمعة والتلاوات، مرتبة لكل شيخ.</p>
-      <input class="search" id="q" type="search" placeholder="ابحث باسم الدرس أو الشيخ" aria-label="بحث" autocomplete="off"></div>
     <nav class="cats" aria-label="الأقسام">${cats().map(c => `<a class="cat" href="${c.href}"><span class="ms" aria-hidden="true">${c.icon}</span><b>${c.t}</b><small>${c.n}</small></a>`).join("")}</nav>
     <article class="feature"><small>أحدث درس</small><h2>${esc(L.t)}</h2><p>${esc(sheikhName(latest) ? "الشيخ " + sheikhName(latest) : "")}${L.h ? " — " + esc(hijri(L.h)) : ""}</p>
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </section>
-  <div id="results"></div>
-  <div id="homeBody">
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
   ${secH("آخر المستجدات", "", "latest", "/latest")}${list("latest", all, { limit: 8, sheikh: true })}
-  ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}
-  </div>`;
-  const q = $("#q");
-  const norm = s => s.replace(/[ً-ْ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
-  q.addEventListener("input", () => {
-    const v = norm(q.value.trim());
-    $("#homeBody").hidden = !!v;
-    document.querySelector(".hero").classList.toggle("searching", !!v);
-    if (!v) { $("#results").innerHTML = ""; return; }
-    const words = v.split(/\s+/);
-    const hits = all.filter(i => { const h = norm(DB.lessons[i].t + " " + sheikhName(i) + " " + (DB.ctx[i] || "")); return words.every(w => h.includes(w)); });
-    $("#results").innerHTML = secH("نتائج البحث", hits.length + " نتيجة") + list("search", hits, { limit: 30, sheikh: true });
-  });
+  ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
+
+/* البحث (أيقونة في الهيدر) */
+const norm = s => s.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+function searchIds(q) {
+  const words = norm(q.trim()).split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  return allIds().filter(i => { const h = norm(DB.lessons[i].t + " " + sheikhName(i) + " " + (DB.ctx[i] || "")); return words.every(w => h.includes(w)); });
+}
+function searchPage() {
+  const q = new URLSearchParams(location.search).get("q") || "";
+  const gq = $("#gq"); if (gq && gq.value !== q) gq.value = q;
+  openSearch(true, false);
+  const ids = searchIds(q);
+  app.innerHTML = pageHead("البحث", q ? `${ids.length} نتيجة لـ «${q}»` : "اكتب اسم الدرس أو الشيخ أو السورة") + (q ? list("search", ids, { limit: 30, sheikh: true }) : "");
+}
+const searchbar = $("#searchbar"), gq = $("#gq");
+function openSearch(on, focus = true) {
+  searchbar.hidden = !on; $("#searchBtn").setAttribute("aria-expanded", on);
+  if (on && focus) gq.focus();
+}
+$("#searchBtn").onclick = () => { const on = searchbar.hidden; openSearch(on); if (!on && pathParts()[0] === "search") go("/"); };
+let searchTimer;
+gq.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const url = "/search" + (gq.value.trim() ? "?q=" + encodeURIComponent(gq.value.trim()) : "");
+    if (pathParts()[0] === "search") { history.replaceState(null, "", url); searchPage(); } else go(url);
+  }, 250);
+});
+gq.addEventListener("keydown", e => { if (e.key === "Escape") { gq.value = ""; openSearch(false); if (pathParts()[0] === "search") go("/"); } });
 
 /* صفحة الشيخ: الأقسام على اليمين (تابات فوق في الموبايل) والدروس على الشمال */
 const shLessons = sh => [...sh.lesson, ...(sh.series || []).flatMap(seriesIds)];
@@ -263,8 +277,10 @@ const pathParts = () => location.pathname.replace(/^\/+|\/+$/g, "").split("/").f
 function go(url) { history.pushState(null, "", url); route(); }
 function route(keep) {
   const p = pathParts();
+  if (p[0] !== "search" && !searchbar.hidden) { gq.value = ""; openSearch(false); }
   if (p[0] === "s") sheikhPage(p[1], p[2]);
   else if (p[0] === "c") collectionPage(p[1]);
+  else if (p[0] === "search") searchPage();
   else if (PAGES[p[0]]) PAGES[p[0]]();
   else if (p.length) notFound();
   else home();
@@ -383,8 +399,7 @@ drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(()
 $("#drawerSearch").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
   const v = e.target.value.trim(); if (!v) return;
-  menu(false); if (pathParts().length) go("/");
-  setTimeout(() => { const q = $("#q"); q.value = v; q.dispatchEvent(new Event("input")); q.scrollIntoView({ block: "start" }); }, 30);
+  menu(false); go("/search?q=" + encodeURIComponent(v));
 });
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("nexttrack", () => step(1));
