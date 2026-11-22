@@ -353,3 +353,6 @@ html,body{max-width:100%;overflow-x:clip}
 @supports not (overflow:clip){html,body{overflow-x:hidden}}
 .searchbar input{font-size:16px}
 .sbox{min-width:0}
+
+/* اسم المسجد في الهيدر بنفس خط الموقع */
+.brand{font-family:var(--sans);font-size:21px;font-weight:700}
