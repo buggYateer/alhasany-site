@@ -62,7 +62,8 @@ function arch(sh) {
 }
 
 /* سطر الدرس */
-function row(id, listKey, showSheikh) {
+const BADGE = { lesson: ["درس", "b-lesson"], khutba: ["خطبة", "b-khutba"], tilawa: ["تلاوة", "b-tilawa"], other: ["متفرقات", "b-other"] };
+function row(id, listKey, showSheikh, showKind) {
   const L = DB.lessons[id];
   const pos = store.get("pos:" + id, 0), dur = parseDur(L.d);
   const pct = pos && dur ? Math.min(100, pos / dur * 100) : 0;
@@ -70,7 +71,7 @@ function row(id, listKey, showSheikh) {
   return `<div class="row${cur === id ? " playing" : ""}" data-id="${id}">
     <button class="play" data-play="${id}" data-list="${listKey}" ${L.p ? "" : 'disabled title="الملف ده على تليجرام بس"'} aria-label="تشغيل ${esc(L.t)}">
       <svg viewBox="0 0 24 24">${cur === id && !audio.paused ? ICON_PAUSE : ICON_PLAY}</svg></button>
-    <div class="txt"><div class="t">${L.n ? `<span class="n">${L.n}</span>` : ""}${esc(L.t)}</div>
+    <div class="txt"><div class="t">${showKind && BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}${L.n ? `<span class="n">${L.n}</span>` : ""}${esc(L.t)}</div>
       <div class="m">${meta}</div>${pct > 1 ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div>
     ${L.p ? `<a class="dl" href="/api/dl?id=${id}" data-dl="${id}" title="تحميل" aria-label="تحميل ${esc(L.t)}"><span class="ms" aria-hidden="true">download</span></a>` : ""}
     <a class="tg" href="${TG}${id}" target="_blank" rel="noopener" title="افتح في تليجرام" aria-label="افتح في تليجرام">${TG_SVG}</a></div>`;
@@ -79,8 +80,8 @@ const LISTS = {};
 function list(key, ids, opts = {}) {
   LISTS[key] = ids;
   const limit = opts.limit || ids.length;
-  let h = `<div class="list">` + (ids.slice(0, limit).map(i => row(i, key, opts.sheikh)).join("") || '<div class="empty">مفيش مقاطع هنا لسه</div>');
-  if (ids.length > limit) h += `<button class="more" data-more="${key}" data-shown="${limit}" data-sheikh="${opts.sheikh ? 1 : ""}">عرض المزيد (${ids.length - limit})</button>`;
+  let h = `<div class="list">` + (ids.slice(0, limit).map(i => row(i, key, opts.sheikh, opts.kind)).join("") || '<div class="empty">مفيش مقاطع هنا لسه</div>');
+  if (ids.length > limit) h += `<button class="more" data-more="${key}" data-shown="${limit}" data-sheikh="${opts.sheikh ? 1 : ""}" data-kind="${opts.kind ? 1 : ""}">عرض المزيد (${ids.length - limit})</button>`;
   return h + "</div>";
 }
 /* أقسام مقفولة — بتتفتح بالضغط */
@@ -137,7 +138,7 @@ function home() {
   </section>
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
   ${secH("السلاسل", "", "series", "/series")}<div class="series-row">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>
-  ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true })}
+  ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true, kind: true })}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
 
@@ -152,7 +153,7 @@ function searchPage() {
   const gq = $("#gq"); if (gq && gq.value !== q) gq.value = q;
   openSearch(true, false);
   const ids = searchIds(q);
-  app.innerHTML = pageHead("البحث", q ? `${ids.length} نتيجة لـ «${q}»` : "اكتب اسم الدرس أو الشيخ أو السورة") + (q ? list("search", ids, { limit: 30, sheikh: true }) : "");
+  app.innerHTML = pageHead("البحث", q ? `${ids.length} نتيجة لـ «${q}»` : "اكتب اسم الدرس أو الشيخ أو السورة") + (q ? list("search", ids, { limit: 30, sheikh: true, kind: true }) : "");
 }
 const searchbar = $("#searchbar"), gq = $("#gq");
 function openSearch(on, focus = true) {
@@ -225,7 +226,7 @@ function renderPanel(sh, tab) {
 
 /* صفحات المنيو */
 const PAGES = {
-  latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true }); },
+  latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
@@ -479,7 +480,7 @@ document.addEventListener("click", e => {
   const m = e.target.closest("[data-more]");
   if (m) {
     const key = m.dataset.more, shown = +m.dataset.shown, ids = LISTS[key], next = ids.slice(shown, shown + 20);
-    m.insertAdjacentHTML("beforebegin", next.map(i => row(i, key, !!m.dataset.sheikh)).join(""));
+    m.insertAdjacentHTML("beforebegin", next.map(i => row(i, key, !!m.dataset.sheikh, !!m.dataset.kind)).join(""));
     m.dataset.shown = shown + next.length;
     if (shown + next.length >= ids.length) m.remove(); else m.textContent = `عرض المزيد (${ids.length - shown - next.length})`;
   }

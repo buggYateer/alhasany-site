@@ -451,3 +451,11 @@ html,body{max-width:100%;overflow-x:clip}
 .series-row .series-card{scroll-snap-align:start}
 .series-row.compact{margin:-6px 0 22px;grid-auto-columns:minmax(240px,320px)}
 @media (max-width:600px){.series-row{grid-auto-columns:78%}}
+
+/* علامة نوع المقطع (درس / خطبة / تلاوة) */
+.badge-k{display:inline-block;vertical-align:2px;font-size:12.5px;font-weight:700;line-height:1;padding:4px 9px;border-radius:999px;margin-inline-end:8px;white-space:nowrap}
+.b-lesson{background:#e3e9f7;color:#2e3f6b}
+.b-khutba{background:#f6e4ea;color:#7a2f47}
+.b-tilawa{background:#e2f1e6;color:#2b6a3d}
+.b-other{background:var(--tint);color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .b-lesson{background:#26345c;color:#c8d4f5}:root:not([data-theme="light"]) .b-khutba{background:#4a2433;color:#f2c6d4}:root:not([data-theme="light"]) .b-tilawa{background:#1f4029;color:#bfe6c9}}
