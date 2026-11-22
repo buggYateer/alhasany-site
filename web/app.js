@@ -278,7 +278,13 @@ const PAGES = {
   lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
   khutab: () => filterPage("khutab", "خطب الجمعة", "خطبة", "khutba", ["sheikh", "month"]),
   tilawat: () => filterPage("tilawat", "التلاوات", "تلاوة", "tilawa", ["sheikh", "surah", "month"]),
-  others: () => { const rest = DB.sheikhs.filter(s => !s.main); app.innerHTML = pageHead("خطباء ومشايخ", `${rest.length} خطيب وشيخ`) + othersGrid(rest); },
+  others: () => {
+    const rest = DB.sheikhs.filter(s => !s.main), mode = OSORT();
+    const by = { count: (a, b) => count(b) - count(a), az: (a, b) => a.name.localeCompare(b.name, "ar"), za: (a, b) => b.name.localeCompare(a.name, "ar") };
+    const list = rest.slice().sort(by[mode] || by.count);
+    const sbtn = `<button class="icon-btn on-dark" data-osort aria-label="ترتيب" title="ترتيب"><span class="ms" aria-hidden="true">swap_vert</span></button>`;
+    app.innerHTML = pageHead("خطباء ومشايخ", `${rest.length} خطيب وشيخ`, sbtn + shareBtn(location.pathname, "خطباء ومشايخ", "on-dark")) + othersGrid(list);
+  },
 };
 
 PAGES.sheikhs = PAGES.weekly;
@@ -681,7 +687,7 @@ function shareLink(path, title, btn) {
     closeShareMenu();
   };
 }
-document.addEventListener("click", e => { if (!e.target.closest("#shareMenu, [data-share]")) closeShareMenu(); });
+document.addEventListener("click", e => { if (!e.target.closest("#shareMenu, [data-share], [data-osort]")) closeShareMenu(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeShareMenu(); });
 window.addEventListener("scroll", closeShareMenu, { passive: true });
 function toast(msg) {
@@ -691,6 +697,20 @@ function toast(msg) {
 }
 const shareBtn = (path, title, cls = "") => `<button class="share-btn ${cls}" data-share="${esc(path)}" data-title="${esc(title)}" aria-label="مشاركة"><span class="ms" aria-hidden="true">share</span><span class="sb-t">مشاركة</span></button>`;
 document.addEventListener("click", e => { const b = e.target.closest("[data-share]"); if (b) { e.preventDefault(); e.stopPropagation(); shareLink(b.dataset.share, b.dataset.title, b); } }, true);
+
+/* ترتيب الخطباء والمشايخ */
+const OSORT = () => { try { return localStorage.getItem("osort") || "count"; } catch { return "count"; } };
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-osort]"); if (!b) return;
+  e.stopPropagation(); closeShareMenu();
+  const m = document.createElement("div"); m.id = "shareMenu"; m.className = "share-menu"; m.dataset.for = "osort"; m.setAttribute("role", "menu");
+  const cur = OSORT(), opt = (k, t) => `<button role="menuitemradio" aria-checked="${cur === k}" data-o="${k}"><span class="ms">${cur === k ? "check" : ""}</span>${t}</button>`;
+  m.innerHTML = opt("count", "الأكثر مقاطع") + opt("az", "أبجديًا (أ ← ي)") + opt("za", "أبجديًا (ي ← أ)");
+  document.body.appendChild(m);
+  const r = b.getBoundingClientRect(), mw = m.offsetWidth;
+  m.style.top = (r.bottom + 8) + "px"; m.style.left = Math.max(8, Math.min(r.left + r.width / 2 - mw / 2, innerWidth - mw - 8)) + "px";
+  m.onclick = ev => { const it = ev.target.closest("[data-o]"); if (!it) return; try { localStorage.setItem("osort", it.dataset.o); } catch {} closeShareMenu(); PAGES.others(); };
+});
 
 /* صفحة لكل مقطع: /l/640 */
 function lessonPage(id) {
