@@ -562,3 +562,19 @@ html{scrollbar-width:thin;scrollbar-color:#9aa6c4 transparent}
 
 /* اسم المسجد في الهيدر بالدهبي (تجربة) */
 .brand span{color:var(--gold)}
+
+/* خط العناوين: Alexandria في كل الموقع — واسم الشيخ بلون مختلف */
+:root{--serif:"Alexandria","IBM Plex Sans Arabic",sans-serif}
+h1,h2,h3,.brand,.sec-h h2,.panel-h h2,.page-h h1,.sh-head h1,.sh-card .name,.sc-body h3,.lesson-card .sc-body h3,.cv-text b,.feature h2,.cat b,.pl-title,.drawer-h b{font-family:var(--serif)}
+h1,h2,h3{font-weight:700;letter-spacing:0}
+.page-h h1{font-size:30px}
+.sh-card .name{font-size:19px;font-weight:600}
+.cv-text b{font-weight:700;line-height:1.35}
+.feature h2{font-size:27px;line-height:1.45}
+.player.expanded .pl-title{font-size:23px;font-weight:600}
+/* اسم الشيخ: دهبي وأخف من العنوان */
+.row .m .sh{color:var(--gold-d);font-weight:600}
+.lesson-card .sc-body p,.series-card .sc-body p{color:var(--gold-d);font-weight:600}
+.pl-sub{color:var(--gold);opacity:1}
+:root[data-theme="dark"] .row .m .sh,:root[data-theme="dark"] .lesson-card .sc-body p,:root[data-theme="dark"] .series-card .sc-body p{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .row .m .sh,:root:not([data-theme="light"]) .lesson-card .sc-body p,:root:not([data-theme="light"]) .series-card .sc-body p{color:var(--gold)}}
