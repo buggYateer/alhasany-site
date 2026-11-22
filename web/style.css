@@ -801,3 +801,38 @@ body.has-player{padding-bottom:200px}
 .ib-go{border:0;background:var(--navy);color:#fff;border-radius:999px;padding:7px 16px;font:inherit;font-weight:600;cursor:pointer}
 .ib-x{border:0;background:none;color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;display:grid;place-items:center}
 .ib-x .ms{font-size:20px}
+
+/* المشغل الصغير من غير أيقونة/صورة */
+.player:not(.expanded) .pl-art{display:none}
+.player:not(.expanded) .pl-share{display:none}
+/* المشغل الكبير: مسافة بين الشريط والزراير */
+.player.expanded .pl-center{gap:16px}
+.player.expanded .pl-seekrow{margin-bottom:6px}
+
+/* زرار المشاركة */
+.share-btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;flex:none}
+.share-btn .ms{font-size:19px;color:var(--accent)}
+.share-btn.on-dark{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;margin-inline-start:auto}
+.share-btn.on-dark .ms{color:var(--gold)}
+.sh-head{display:flex;align-items:center;gap:14px}
+.panel-h{display:flex;align-items:center;gap:12px}
+@media (max-width:600px){.share-btn .sb-t{display:none}.share-btn{padding:8px}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--navy-d);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;z-index:60;transition:.2s;pointer-events:none;border:1px solid rgba(207,166,74,.5)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+body.has-player .toast{bottom:150px}
+
+/* صفحة المقطع */
+.lesson-page{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:24px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.lp-cover{container-type:inline-size;border-radius:14px;overflow:hidden}
+.lp-cover .cover{border-radius:14px}
+.lp-info h1{font-size:26px;margin:8px 0 6px;line-height:1.45}
+.lp-meta a{color:var(--gold-d);font-weight:600}
+.lp-meta2{color:var(--muted);margin:2px 0 14px}
+.lp-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.lp-actions .big-play{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:0;border-radius:999px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer}
+.lp-actions .big-play .ms{font-size:24px;color:var(--gold)}
+.lp-btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.lp-btn .ms{font-size:20px;color:var(--accent)}
+.lp-btn svg{width:18px;height:18px;fill:#2aabee}
+.lp-btn .sb-t{display:inline!important}
+@media (max-width:760px){.lesson-page{grid-template-columns:1fr}.lp-info h1{font-size:21px}}

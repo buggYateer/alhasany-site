@@ -240,7 +240,7 @@ function sheikhPage(key, sel) {
   LISTS["sh-last"] = [last];
   const L = DB.lessons[last];
   app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(sh.name)}</div>
-  <header class="sh-head"><div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div></header>
+  <header class="sh-head"><div class="sh-meta"><h1>${sh.main ? "الشيخ " : ""}${esc(sh.name)}</h1><p>${DAYS[sh.key] ? DAYS[sh.key] + " · " : ""}${count(sh)} مقطع</p></div>${shareBtn("/s/" + sh.slug, "الشيخ " + sh.name, "on-dark")}</header>
   ${last ? `<div class="latest-card"><button class="play" data-play="${last}" data-list="sh-last" ${L.p ? "" : "disabled"} aria-label="تشغيل أحدث مقطع">${SVG_PLAY}</button>
     <div class="txt"><small>أحدث مقطع</small><div class="t">${esc(L.t)}</div><div class="m">${esc(hijri(L.h))}${L.d ? " — " + esc(L.d) : ""}</div></div></div>` : ""}
   <div class="split"><nav class="side" role="tablist" aria-label="الأقسام">${side}</nav><div class="panel" id="panel"></div></div>`;
@@ -263,7 +263,7 @@ function renderPanel(sh, tab) {
     body = list(`${sh.key}:${tab.id}`, ids, { limit: 15 });
     n = ids.length; sub = "الأحدث الأول";
   }
-  $("#panel").innerHTML = `<div class="panel-h"><div><h2>${esc(tab.t)}</h2><p>${n} مقطع، ${sub}</p></div></div>${body}`;
+  $("#panel").innerHTML = `<div class="panel-h"><div><h2>${esc(tab.t)}</h2><p>${n} مقطع، ${sub}</p></div>${shareBtn(`/s/${sh.slug}/${tab.id}`, `${tab.t} — الشيخ ${sh.name}`, "on-dark")}</div>${body}`;
 }
 
 /* صفحات المنيو */
@@ -353,6 +353,7 @@ function route(keep) {
   if (p[0] === "s") sheikhPage(p[1], p[2]);
   else if (p[0] === "c") collectionPage(p[1]);
   else if (p[0] === "search") searchPage();
+  else if (p[0] === "l") lessonPage(p[1]);
   else if (PAGES[p[0]]) PAGES[p[0]]();
   else if (p.length) notFound();
   else { home(); installUI(); }
@@ -377,6 +378,7 @@ function play(id, listKey) {
   { const sh = sheikhOf(id), se = seriesOf(id);
     $("#plSub").innerHTML = sh ? `<a href="/s/${sh.slug}">الشيخ ${esc(sh.name)}</a>${se ? ` — <a href="/s/${sh.slug}/${se.key}">${esc(se.title)}</a>` : ""}` : "مسجد الحسني"; }
   $("#plTg").href = TG + id;
+  $("#plShare").dataset.share = "/l/" + id; $("#plShare").dataset.title = L.t;
   { const sh = sheikhOf(id) || { name: "", key: "" }; const face = sh.img ? `<img src="/${esc(sh.img)}" alt="">` : `<span>${esc((sh.name || "م").trim()[0])}</span>`;
     $("#plArt").innerHTML = `<div class="art-mini ${TONES[sh.key] || "t1"}"><span class="ms">${KIND_ICON[L.k] || "graphic_eq"}</span></div>${lessonCover(id)}`; }
   $("#plDl").href = `/api/dl?id=${id}`; $("#plDl").dataset.dl = id;
@@ -640,3 +642,43 @@ document.addEventListener("click", e => {
   if (e.target.closest("#installRow, .ib-go")) { doInstall(); return; }
   if (e.target.closest(".ib-x")) { store.set("installDismissed", true); $("#installBar")?.remove(); }
 });
+
+/* مشاركة أو نسخ لينك أي صفحة (مقطع / شيخ / سلسلة) */
+async function shareLink(path, title) {
+  const url = location.origin + path;
+  if (navigator.share) { try { await navigator.share({ title: title || "مسجد الحسني", url }); return; } catch (e) { if (e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); } catch { const t = document.createElement("textarea"); t.value = url; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
+  toast("اتنسخ اللينك ✓");
+}
+function toast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 2200);
+}
+const shareBtn = (path, title, cls = "") => `<button class="share-btn ${cls}" data-share="${esc(path)}" data-title="${esc(title)}" aria-label="مشاركة"><span class="ms" aria-hidden="true">share</span><span class="sb-t">مشاركة</span></button>`;
+document.addEventListener("click", e => { const b = e.target.closest("[data-share]"); if (b) { e.preventDefault(); e.stopPropagation(); shareLink(b.dataset.share, b.dataset.title); } }, true);
+
+/* صفحة لكل مقطع: /l/640 */
+function lessonPage(id) {
+  id = +id;
+  const L = DB.lessons[id];
+  if (!L) return notFound();
+  const sh = sheikhOf(id), se = seriesOf(id);
+  LISTS["lp:" + id] = [+id];
+  app.innerHTML = `<div class="crumbs"><a href="/">الرئيسية</a>${sh ? ` ‹ <a href="/s/${sh.slug}">${esc(sh.name)}</a>` : ""}${se ? ` ‹ <a href="/s/${sh.slug}/${se.key}">${esc(se.title)}</a>` : ""}</div>
+  <article class="lesson-page">
+    <div class="lp-cover">${lessonCover(id)}</div>
+    <div class="lp-info">
+      ${BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}
+      <h1>${L.n ? `<span class="n">${L.n}</span> ` : ""}${esc(L.t)}</h1>
+      <p class="lp-meta">${sh ? `<a href="/s/${sh.slug}">الشيخ ${esc(sh.name)}</a>` : ""}${se ? ` · <a href="/s/${sh.slug}/${se.key}">${esc(se.title)}</a>` : ""}</p>
+      <p class="lp-meta2">${[hijri(L.h), L.d].filter(Boolean).map(esc).join(" · ")}</p>
+      <div class="lp-actions">
+        ${L.p ? `<button class="big-play" data-play="${id}" data-list="lp:${id}"><span class="ms" aria-hidden="true">play_arrow</span><span>استمع</span></button>
+        <a class="lp-btn" href="/api/dl?id=${id}" data-dl="${id}"><span class="ms" aria-hidden="true">download</span>تحميل</a>` : ""}
+        ${shareBtn("/l/" + id, L.t, "lp-btn")}
+        <a class="lp-btn" href="${TG}${id}" target="_blank" rel="noopener">${TG_SVG}تليجرام</a>
+      </div>
+    </div>
+  </article>`;
+}

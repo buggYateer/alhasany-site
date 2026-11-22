@@ -217,6 +217,24 @@ def weight(sh):
     total = sum(len(sh[k]) for k in ("lesson", "khutba", "tilawa", "other"))
     return (1, -total)
 
+# عناوين التلاوات: «تلاوة ندية لما تيسر من سورة …» ← «ما تيسر من سورة …» (النوع ظاهر أصلًا في الموقع)
+def tilawa_title(t):
+    if re.match(r"^تلاوة\s+ليلة", t):
+        return t
+    t2 = re.sub(r"^تلاوة(\s+ندية)?\s+", "", t)
+    if t2 == t:
+        return t
+    t2 = re.sub(r"^ل(?=(ما|خواتيم|أواخر|فواتح|سورتي|سورة)\b)", "", t2)
+    t2 = re.sub(r"^ل(?=(ما|خواتيم|أواخر|فواتح|سورتي|سورة))", "", t2)
+    if t2.startswith("من "):
+        t2 = "ما تيسر " + t2
+    return t2
+
+
+for k, L in lessons.items():
+    if L["k"] == "tilawa":
+        L["t"] = tilawa_title(L["t"])
+
 # عدد المشاهدات على تليجرام (tools/fetch_views.py)
 VW = SITE / "tools" / "views.json"
 views = json.loads(VW.read_text(encoding="utf-8")) if VW.exists() else {}
