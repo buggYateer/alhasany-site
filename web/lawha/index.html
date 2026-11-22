@@ -3,61 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>داشبورد مسجد الحسني</title>
+<meta name="robots" content="noindex, nofollow">
+<title>لوحة التحكم — مسجد الحسني</title>
 <link rel="icon" type="image/svg+xml" href="/icon-v2.svg">
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&icon_names=add_circle,arrow_upward,cloud_upload,dashboard,delete,edit,library_music,logout,open_in_new,publish,refresh,search,star,undo,visibility_off,warning&display=block" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
-<style>
-body{padding-bottom:40px}
-.ad-top{background:var(--navy-d);color:#fff;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:20}
-.ad-top .wrap{display:flex;align-items:center;gap:10px;min-height:58px;flex-wrap:wrap;padding-block:8px}
-.ad-top b{font-family:var(--serif);color:var(--gold);font-size:19px;display:flex;align-items:center;gap:8px}
-.ad-top b img{width:34px;height:34px}
-.ad-top .sp{flex:1}
-.btn{border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
-.btn.gold{background:var(--gold);color:var(--navy-d)}
-.btn.light{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
-.btn.red{background:#a33a3a}
-.btn:disabled{opacity:.5;cursor:default}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
-.card h2{font-size:18px;margin-bottom:10px}
-.tabs{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.tabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
-.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.fld{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
-.fld span{font-size:13.5px;font-weight:600;color:var(--muted)}
-.fld input,.fld select{font:inherit;font-size:15.5px;color:var(--ink);background:var(--surface-2);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;min-height:44px}
-.fld input:focus,.fld select:focus{outline:none;border-color:var(--gold)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-@media (max-width:600px){.grid2{grid-template-columns:1fr}}
-.lrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line);cursor:pointer}
-.lrow:hover{background:var(--surface-2)}
-.lrow .id{color:var(--muted);font-size:12.5px;min-width:38px;font-variant-numeric:tabular-nums}
-.lrow .tt{flex:1;min-width:0}
-.lrow .tt b{display:block;font-weight:600;font-size:15px}
-.lrow .tt small{color:var(--muted);font-size:13px}
-.tag{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--tint);color:var(--accent)}
-.tag.ed{background:#fff3d6;color:#8a6414}.tag.hid{background:#f6e0e0;color:#8a2a2a}.tag.new{background:#e2f1e6;color:#2b6a3d}
-.msg{margin-top:12px;padding:10px 14px;border-radius:10px;background:var(--tint);font-weight:600}
-.msg.err{background:#f6e0e0;color:#8a2a2a}
-.msg.ok{background:#e2f1e6;color:#2b6a3d}
-.login{max-width:380px;margin:60px auto}
-.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.chk{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:12px}
-.chk input{width:20px;height:20px}
-.hint{color:var(--muted);font-size:13.5px;margin:4px 0 12px}
-</style>
+<link rel="stylesheet" href="/lawha/lawha.css">
 </head>
-<body>
-<header class="ad-top"><div class="wrap">
-  <b><img src="/logo-mark.svg?v=2" alt="">داشبورد الموقع</b>
-  <span class="sp"></span>
-  <a class="btn light" href="/" target="_blank" rel="noopener">فتح الموقع</a>
-  <button class="btn gold" id="pubBtn" hidden disabled>نشر التعديلات</button>
-  <button class="btn light" id="outBtn" hidden>خروج</button>
+<body class="lw">
+<header class="lw-top"><div class="lw-wrap">
+  <b class="lw-brand"><img src="/logo-mark.svg?v=2" alt="">لوحة التحكم</b>
+  <span class="lw-sp"></span>
+  <a class="lw-ic" href="/" target="_blank" rel="noopener" title="فتح الموقع"><span class="ms">open_in_new</span></a>
+  <button class="lw-pub" id="pubBtn" hidden disabled><span class="ms">publish</span><span id="pubTxt">نشر</span><b id="pubN" hidden>0</b></button>
+  <button class="lw-ic" id="outBtn" hidden title="خروج"><span class="ms">logout</span></button>
 </div></header>
-<main class="wrap" id="ad"></main>
+<nav class="lw-tabs" id="tabs" hidden><div class="lw-wrap"></div></nav>
+<main class="lw-wrap lw-main" id="ad"></main>
+<div class="lw-modal" id="modal" hidden><div class="lw-sheet" id="sheet"></div></div>
+<div class="lw-toast" id="toast"></div>
 <script src="/lawha/admin.js"></script>
 </body>
 </html>
