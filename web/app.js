@@ -140,7 +140,7 @@ const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.
 const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
 const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card ${TONES[s.key] || "t1"}" href="/s/${s.slug}"><div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
-const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
+const pageHead = (t, sub, actions) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><div class="ph-t"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div><div class="ph-act">${actions !== undefined ? actions : shareBtn(location.pathname + location.search, t, "on-dark")}</div></div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
 
 /* الأقسام الرئيسية: الدروس / الخطب / التلاوات / التراويح */
@@ -283,7 +283,12 @@ const PAGES = {
 
 PAGES.sheikhs = PAGES.weekly;
 
-let FOPEN = window.matchMedia("(min-width: 861px)").matches;
+let FOPEN = false;
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-ftoggle]"); if (!b) return;
+  FOPEN = !FOPEN; const pn = document.getElementById("fpanel"); if (pn) pn.hidden = !FOPEN;
+  b.classList.toggle("on", FOPEN); b.setAttribute("aria-expanded", FOPEN);
+});
 document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("fbox")) FOPEN = e.target.open; }, true);
 /* صفحة فيها فلاتر (الشيخ / الشهر / السورة / السلسلة) — الاختيارات بتتحفظ في اللينك */
 const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
@@ -310,11 +315,11 @@ function filterPage(page, title, unit, kind, fields) {
     return `<label class="flt"><span>${F.label}</span><select data-f="${f}"><option value="">${F.all}</option>${keys.map(k => `<option value="${esc(k)}"${k === sel[f] ? " selected" : ""}>${esc(F.name(k))} (${cnt[k]})</option>`).join("")}</select></label>`;
   }).join("");
   const nActive = fields.filter(f => sel[f]).length + (order === "old" ? 1 : 0), active = nActive > 0;
-  app.innerHTML = pageHead(title, `${base.length} ${unit}`) +
-    `<div class="lp"><aside class="lp-side"><details class="fbox"${FOPEN ? " open" : ""}><summary><span class="ms" aria-hidden="true">tune</span>فلترة وترتيب${active ? ` <b class="badge">${nActive}</b>` : ""}</summary>
-    <div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
-    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></details></aside>
-    <div class="lp-main"><p class="f-count">${ids.length} ${unit}${active ? " حسب اختيارك" : ""}</p>` + list(`p:${page}`, ids, { limit: 30, sheikh: true, kind: !kind }) + `</div></div>`;
+  const fbtn = `<button class="icon-btn on-dark${FOPEN ? " on" : ""}" data-ftoggle aria-expanded="${FOPEN}" aria-label="فلترة وترتيب" title="فلترة وترتيب"><span class="ms" aria-hidden="true">tune</span>${active ? `<b class="badge">${nActive}</b>` : ""}</button>`;
+  app.innerHTML = pageHead(title, `${base.length} ${unit}`, fbtn + shareBtn(location.pathname + location.search, title, "on-dark")) +
+    `<div class="fpanel" id="fpanel"${FOPEN ? "" : " hidden"}><div class="filters">${selects}<label class="flt"><span>الترتيب</span><select data-f="order"><option value="new">الأحدث الأول</option><option value="old"${order === "old" ? " selected" : ""}>الأقدم الأول</option></select></label>
+    ${active ? `<button class="clear-f" data-clear>مسح الفلاتر</button>` : ""}</div></div>
+    ${active ? `<p class="f-count">${ids.length} ${unit} حسب اختيارك</p>` : ""}` + list(`p:${page}`, ids, { limit: 30, sheikh: true, kind: !kind });
 }
 document.addEventListener("change", e => {
   const s = e.target.closest("[data-f]"); if (!s) return;
