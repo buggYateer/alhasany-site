@@ -1,7 +1,7 @@
 """تحديث الموقع بخطوة واحدة:  python tools/update_site.py
 1) يعيد بناء web/lessons.json من بيانات القناة (build_data.py)
 2) يرفع ملفات الصوت الجديدة بس على GitHub Releases باسم <رقم الرسالة>.mp3 (مقاطع القناة بس — مفيش أي ملف زيادة)
-3) يعمل commit + push ← GitHub Pages ينشر الموقع لوحده خلال دقيقة
+3) يعمل commit + push ← Vercel ينشر الموقع لوحده خلال دقيقة
 اختيارات: --no-push (يرفع الصوت ويبني من غير push) | --dry (يوري هيعمل إيه بس)"""
 import json
 import shutil
@@ -66,7 +66,7 @@ def main():
 
     if "--no-push" in sys.argv:
         return
-    run("git", "add", "-A", "web", "tools", ".github", "README.md", ".gitignore")
+    run("git", "add", "-A", "web", "tools", "fixes", "README.md", ".gitignore", "vercel.json")
     if run("git", "status", "--porcelain", check=False).strip() or DRY:
         run("git", "commit", "-m", "تحديث الموقع")
         run("git", "push")

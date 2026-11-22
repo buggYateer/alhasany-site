@@ -27,6 +27,16 @@ for f in files:
     for x in json.loads(Path(f).read_text(encoding="utf-8")):
         cap[x["id"]] = x["html"]
 
+# تصحيحات الوصف اللي اتعملت من فولدر الموقع (بتتطبق على تليجرام بعد موافقة صاحب القناة)
+# (بتتاخد بس بعد ما تتطبق على تليجرام: fixes/applied.json فيه أرقام الرسايل اللي اتطبقت)
+APPLIED = set(json.loads((SITE / "fixes" / "applied.json").read_text(encoding="utf-8"))) if (SITE / "fixes" / "applied.json").exists() else set()
+for f in sorted(glob.glob(str(SITE / "fixes" / "fix_*.json"))):
+    for x in json.loads(Path(f).read_text(encoding="utf-8")):
+        if x["id"] in APPLIED:
+            cap[x["id"]] = x["html"]
+SERIES_TITLES = {int(k): v for k, v in json.loads((SITE / "fixes" / "series_titles.json").read_text(encoding="utf-8")).items()} if (SITE / "fixes" / "series_titles.json").exists() else {}
+SERIES_TITLES = {k: v for k, v in SERIES_TITLES.items() if k in APPLIED}
+
 msgs = json.loads((DATA / "channel_audio.json").read_text(encoding="utf-8"))
 # رسايل اتمسحت من القناة (627: الخطبة اتعادت في 634)
 DELETED = {627}
@@ -143,7 +153,7 @@ for s in SERIES:
             if i not in lessons:
                 continue
             n += 1
-            lessons[i]["t"] = t
+            lessons[i]["t"] = SERIES_TITLES.get(i, t)
             lessons[i]["k"] = "lesson"
             if s.get("numbered"):
                 lessons[i]["n"] = n

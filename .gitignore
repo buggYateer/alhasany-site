@@ -3,3 +3,4 @@ tools/durations.json
 tools/missing_audio.txt
 __pycache__/
 audio_from_telegram/
+work/
