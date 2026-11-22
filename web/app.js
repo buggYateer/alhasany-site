@@ -44,7 +44,12 @@ const parseDur = d => (d || "").split(":").reduce((a, b) => a * 60 + (+b || 0), 
 const seriesIds = s => s.sections.flatMap(x => x.ids);
 const count = sh => ["lesson", "khutba", "tilawa", "other"].reduce((a, k) => a + sh[k].length, 0) + (sh.series || []).reduce((a, s) => a + seriesIds(s).length, 0);
 const newest = ids => [...ids].sort((a, b) => b - a);
-const hijri = h => h ? h.replace(/-/g, "/") + "هـ" : "";
+/* «7-6-1448» ← «7 جمادى الآخرة 1448هـ» */
+const hijri = h => {
+  if (!h) return "";
+  const r = /^(\d+)-(\d+)-(14\d\d)$/.exec(h);
+  return r && +r[2] >= 1 && +r[2] <= 12 ? `${+r[1]} ${MONTHS[+r[2] - 1]} ${r[3]}هـ` : h + "هـ";
+};
 
 function arch(sh) {
   const inner = sh.img ? `<img src="/${esc(sh.img)}" alt="" loading="lazy">` : `<span aria-hidden="true">${esc(sh.name.trim()[0] || "")}</span>`;
