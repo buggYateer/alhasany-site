@@ -636,3 +636,19 @@ h1,h2,h3{font-weight:600}
   .nav + .theme-btn{margin-inline-start:0}
   .theme-row{display:none}
 }
+
+/* الصف: العنوان بعرض الصف، والتحميل تحت جنب التاريخ */
+.row .m{align-items:center}
+.row .m .dl{display:inline-flex;align-items:center;gap:3px;width:auto;height:auto;border-radius:6px;padding:1px 6px;margin-inline-start:-6px;color:var(--accent);font-weight:600;font-size:13px}
+.row .m .dl .ms{font-size:18px}
+.row .m .dl:hover{background:var(--tint)}
+.row .m .tg-only{color:#2aabee;font-weight:600;font-size:13px}
+@container (min-width:760px){
+  .row .txt{grid-template-columns:minmax(0,3.2fr) minmax(92px,.7fr) minmax(140px,.9fr) 52px 78px}
+  .row .m .dl,.row .m .tg-only{grid-column:5;grid-row:1;justify-self:end;margin:0}
+}
+/* المشغل الصغير على الموبايل: تحميل بدل تليجرام */
+@media (max-width:860px){
+  .player:not(.expanded) .pl-dl{display:grid}
+  .player:not(.expanded) .pl-tg:not(.pl-dl){display:none}
+}
