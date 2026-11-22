@@ -346,7 +346,7 @@ function collectionPage(key) {
 function notFound() { app.innerHTML = '<p class="empty">الصفحة دي مش موجودة. <a href="/" style="text-decoration:underline">ارجع للرئيسية</a></p>'; }
 
 const pathParts = () => location.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).map(decodeURIComponent);
-function go(url) { history.pushState(null, "", url); if (document.querySelector("#player.expanded")) expand(false); route(); }
+function go(url) { if (document.querySelector("#player.expanded")) expand(false, true); history.pushState(null, "", url); route(); }
 function route(keep) {
   const p = pathParts();
   if (p[0] !== "search" && !searchbar.hidden) { gq.value = ""; openSearch(false); }
@@ -390,7 +390,11 @@ function play(id, listKey) {
 }
 /* المشغل الكبير (بالضغط على المشغل الصغير) */
 const player = $("#player");
-function expand(on) {
+/* المشغل الكبير بياخد خطوة في سجل التصفح: زرار «رجوع» يصغّره الأول */
+function expand(on, viaHistory) {
+  const was = player.classList.contains("expanded");
+  if (on && !was) history.pushState({ pl: 1 }, "", location.href);
+  if (!on && was && !viaHistory && history.state && history.state.pl) { history.back(); return; } // popstate هيكمّل التصغير
   player.classList.toggle("expanded", on);
   document.body.style.overflow = on ? "hidden" : "";
   $("#plMin").hidden = !on;
@@ -612,7 +616,7 @@ Promise.all([
   buildDrawer(); paintTheme(); installUI();
   // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
   if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
-  window.addEventListener("popstate", () => route());
+  window.addEventListener("popstate", () => { if (player.classList.contains("expanded")) { expand(false, true); return; } route(); });
   route();
 }).catch(() => { app.innerHTML = '<p class="empty">الصفحة مقدرتش تحمّل البيانات. حدّث الصفحة وجرّب تاني.</p>'; });
 
