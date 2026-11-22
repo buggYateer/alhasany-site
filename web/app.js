@@ -85,6 +85,19 @@ const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${e
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
 
+/* الأقسام الرئيسية: الدروس / الخطب / التلاوات / التراويح */
+function cats() {
+  const inC = i => DB.collections.some(c => c.ids.includes(+i));
+  const n = k => Object.entries(DB.lessons).filter(([i, L]) => L.k === k && !inC(i)).length;
+  const c = DB.collections[0];
+  return [
+    { href: "/lessons", icon: "menu_book", t: "الدروس", n: n("lesson") },
+    { href: "/khutab", icon: "mic", t: "خطب الجمعة", n: n("khutba") },
+    { href: "/tilawat", icon: "graphic_eq", t: "التلاوات", n: n("tilawa") },
+    ...(c ? [{ href: `/c/${c.key}`, icon: "bedtime", t: "التراويح والتهجد", n: c.ids.length }] : []),
+  ];
+}
+
 /* الرئيسية */
 function home() {
   const all = Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
@@ -96,6 +109,7 @@ function home() {
   <section class="hero">
     <div class="intro"><h1>تسجيلات المسجد</h1><p>دروس الأسبوع وخطب الجمعة والتلاوات، مرتبة لكل شيخ.</p>
       <input class="search" id="q" type="search" placeholder="ابحث باسم الدرس أو الشيخ" aria-label="بحث" autocomplete="off"></div>
+    <nav class="cats" aria-label="الأقسام">${cats().map(c => `<a class="cat" href="${c.href}"><span class="ms" aria-hidden="true">${c.icon}</span><b>${c.t}</b><small>${c.n}</small></a>`).join("")}</nav>
     <article class="feature"><small>أحدث درس</small><h2>${esc(L.t)}</h2><p>${esc(sheikhName(latest) ? "الشيخ " + sheikhName(latest) : "")}${L.h ? " — " + esc(hijri(L.h)) : ""}</p>
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </section>
@@ -103,7 +117,6 @@ function home() {
   <div id="homeBody">
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
   ${secH("آخر المستجدات", "", "latest", "/latest")}${list("latest", all, { limit: 8, sheikh: true })}
-  ${DB.collections.map(c => `${secH("مواسم")}<a class="collection" href="/c/${c.key}"><span class="moon" aria-hidden="true">🌙</span><div><h3>${esc(c.title)}</h3><p>${c.ids.length} مقطع: التراويح والتهجد والدروس</p></div></a>`).join("")}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}
   </div>`;
   const q = $("#q");
@@ -344,8 +357,8 @@ function buildDrawer() {
   const kh = Object.values(DB.lessons).filter(L => L.k === "khutba").length, ti = Object.values(DB.lessons).filter(L => L.k === "tilawa").length;
   const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
   $("#drawerNav").innerHTML =
+    `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
     `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/latest", "آخر المستجدات") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
-    `<h4>المقاطع</h4>` + item("/lessons", "الدروس", Object.values(DB.lessons).filter(L => L.k === "lesson").length) + item("/khutab", "خطب الجمعة", kh) + item("/tilawat", "التلاوات", ti) + DB.collections.map(c => item(`/c/${c.key}`, esc(c.title), c.ids.length)).join("") +
     `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ آخرون", DB.sheikhs.filter(s => !s.main).length);
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }
