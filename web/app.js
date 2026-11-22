@@ -99,7 +99,7 @@ function cover(se, sh) {
   return `<div class="cover ${TONES[sh.key] || "t1"}" aria-hidden="true">
     <div class="cv-arch">${face}</div>
     <div class="cv-text"><small>${/^سلسلة/.test(se.title) ? "سلسلة" : "دروس"}</small><b>${esc(cleanTitle(se.title))}</b><i>الشيخ ${esc(sh.name)}</i></div>
-    <img class="cv-logo" src="/logo.png" alt="">
+    <img class="cv-logo" src="/logo-mark.png" alt="">
   </div>`;
 }
 /* صورة لكل مقطع (نفس قالب الغلاف): لون الشيخ + نوع المقطع + العنوان */
@@ -111,7 +111,7 @@ function lessonCover(id) {
   return `<div class="cover lcover ${TONES[sh.key] || "t1"}" aria-hidden="true">
     <div class="cv-arch">${face}</div>
     <div class="cv-text"><small>${esc(tag)}</small><b>${esc(L.t)}</b>${sh.name ? `<i>الشيخ ${esc(sh.name)}</i>` : ""}</div>
-    <img class="cv-logo" src="/logo.png" alt="">
+    <img class="cv-logo" src="/logo-mark.png" alt="">
   </div>`;
 }
 const fmtViews = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + " ألف" : String(n);

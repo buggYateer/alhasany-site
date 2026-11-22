@@ -737,3 +737,9 @@ body.has-player{padding-bottom:200px}
 .brand img,.drawer-h b img{border-radius:0;object-fit:contain}
 .brand img{width:40px;height:40px}
 @media (max-width:600px){.brand img{width:36px;height:36px}}
+
+/* اللوجو: القبة والهلال بس، أكبر ومن غير خلفية */
+.brand img{width:46px;height:46px;border-radius:0;object-fit:contain}
+.drawer-h b img{width:36px;height:36px}
+.cv-logo{width:34px;height:34px;border-radius:0;opacity:.95}
+@media (max-width:600px){.brand img{width:42px;height:42px}}
