@@ -470,13 +470,12 @@ menuBtn.onclick = () => menu(true);
 $("#menuClose").onclick = scrim.onclick = () => menu(false);
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); else if (!speedMenu.hidden) speedOpen(false); else expand(false); } });
 function buildDrawer() {
-  const item = (href, t, n) => `<a href="${href}">${t}${n ? ` <small>${n}</small>` : ""}</a>`;
-  const kh = Object.values(DB.lessons).filter(L => L.k === "khutba").length, ti = Object.values(DB.lessons).filter(L => L.k === "tilawa").length;
+  const item = (href, t, icon, n) => `<a href="${href}"><span class="ms" aria-hidden="true">${icon}</span><span class="di-t">${t}</span>${n ? `<small>${n}</small>` : ""}</a>`;
   const se = DB.sheikhs.reduce((a, s) => a + (s.series || []).length, 0);
   $("#drawerNav").innerHTML =
-    `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.n)).join("") +
-    `<h4>تصفّح</h4>` + item("/", "الرئيسية") + item("/all", "جميع التسجيلات", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات") + item("/popular", "الأكثر استماعًا") + item("/weekly", "دروس الأسبوع", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", se) +
-    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", DB.sheikhs.filter(s => !s.main).length) +
+    `<h4>الأقسام</h4>` + cats().map(c => item(c.href, c.t, c.icon, c.n)).join("") +
+    `<h4>تصفّح</h4>` + item("/", "الرئيسية", "home") + item("/all", "جميع التسجيلات", "library_music", Object.keys(DB.lessons).length) + item("/latest", "آخر المستجدات", "schedule") + item("/popular", "الأكثر استماعًا", "trending_up") + item("/weekly", "دروس الأسبوع", "calendar_month", DB.sheikhs.filter(s => s.main).length) + item("/series", "السلاسل", "auto_stories", se) +
+    `<h4>أخرى</h4>` + item("/others", "خطباء ومشايخ", "groups", DB.sheikhs.filter(s => !s.main).length) +
     `<button class="theme-row" id="themeRow" type="button"><span class="ms" aria-hidden="true">dark_mode</span><span>الوضع الليلي</span></button>`;
 }
 function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here)); }

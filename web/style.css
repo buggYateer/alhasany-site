@@ -682,3 +682,23 @@ h1,h2,h3{font-weight:600}
 body,body:not(.has-player){padding-bottom:28px}
 body.has-player{padding-bottom:200px}
 @media (min-width:861px){body.has-player{padding-bottom:130px}}
+
+/* القائمة بشكل الموقع */
+.drawer{padding:0 0 20px;background:var(--bg)}
+.drawer-h{background:var(--navy-d);color:#fff;padding:12px 14px;margin:0 0 12px;border-bottom:3px solid var(--gold)}
+.drawer-h b{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold)}
+.drawer-h b img{width:32px;height:32px;border-radius:50%}
+.drawer-h .x-btn{color:#fff}
+.drawer-h .x-btn:hover{background:rgba(255,255,255,.12)}
+.drawer > .search,.drawer nav{margin:0 12px}
+.drawer > .search{width:calc(100% - 24px);background:var(--surface)}
+.drawer h4{display:block;background:var(--tint);color:var(--accent);border-radius:8px;padding:6px 12px;font-family:var(--serif);font-size:13.5px;font-weight:700;margin:16px 0 6px}
+.drawer nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:15px;justify-content:flex-start}
+.drawer nav a .ms{font-size:21px;color:var(--accent);flex:none}
+.drawer nav a .di-t{flex:1}
+.drawer nav a small{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:12px;color:var(--muted);line-height:1.7}
+.drawer nav a:hover{background:var(--surface)}
+.drawer nav a[aria-current]{background:var(--navy);color:#fff}
+.drawer nav a[aria-current] .ms{color:var(--gold)}
+.drawer nav a[aria-current] small{background:rgba(255,255,255,.15);border-color:transparent;color:#fff}
+.theme-row{margin:16px 12px 0;width:calc(100% - 24px)}
