@@ -116,7 +116,7 @@ function lessonCover(id) {
   </div>`;
 }
 const fmtViews = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + " ألف" : String(n);
-const lessonCard = (id, key) => { const L = DB.lessons[id]; return `<button class="lesson-card" data-play="${id}" data-list="${key}" ${L.p ? "" : "disabled"}>${lessonCover(id)}<div class="sc-body"><h3>${BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}${esc(L.t)}</h3><p>${esc(sheikhName(id) || "")}${L.v ? ` · ${fmtViews(L.v)} مشاهدة` : ""}</p></div></button>`; };
+const lessonCard = (id, key) => { const L = DB.lessons[id]; return `<button class="lesson-card" data-play="${id}" data-list="${key}" ${L.p ? "" : "disabled"}>${lessonCover(id)}<div class="sc-body"><h3>${BADGE[L.k] ? `<span class="badge-k ${BADGE[L.k][1]}">${BADGE[L.k][0]}</span>` : ""}${esc(L.t)}</h3><p>${esc(sheikhName(id) || "")}</p></div></button>`; };
 const popularIds = () => allIds().filter(i => DB.lessons[i].v).sort((a, b) => DB.lessons[b].v - DB.lessons[a].v);
 /* الأكثر استماعًا لكل شيخ (كل شيخ بيتقارن بنفسه) — بيتنوع بين درس وتلاوة ويتغير كل أسبوع */
 const WEEK = Math.floor(Date.now() / 604800000);
@@ -138,7 +138,7 @@ function popularPage() {
 }
 const seriesCard = (se, sh) => `<a class="series-card" href="/s/${sh.slug}/${se.key}">${cover(se, sh)}<div class="sc-body"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)} · ${seriesIds(se).length} درس</p></div></a>`;
 const allSeries = () => DB.sheikhs.flatMap(sh => (sh.series || []).map(se => [se, sh]));
-const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card ${TONES[s.key] || "t1"}" href="/s/${s.slug}"><div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card ${TONES[s.key] || "t1"}" href="/s/${s.slug}"><div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}</a>`).join("")}</div>`;
 const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub, actions) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><div class="ph-t"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div><div class="ph-act">${actions !== undefined ? actions : shareBtn(location.pathname + location.search, t, "on-dark")}</div></div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
@@ -270,7 +270,7 @@ function renderPanel(sh, tab) {
 const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
-  popular: () => { const ids = popularPage(); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "أكثر ما استُمع إليه لكل شيخ، حسب المشاهدات على قناة التليجرام") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
+  popular: () => { const ids = popularPage(); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "أكثر ما استُمع إليه لكل شيخ") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
   },
