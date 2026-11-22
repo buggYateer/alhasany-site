@@ -91,8 +91,10 @@ function home() {
   q.addEventListener("input", () => {
     const v = norm(q.value.trim());
     $("#homeBody").hidden = !!v;
+    document.querySelector(".hero").classList.toggle("searching", !!v);
     if (!v) { $("#results").innerHTML = ""; return; }
-    const hits = all.filter(i => norm(DB.lessons[i].t + " " + sheikhName(i)).includes(v));
+    const words = v.split(/\s+/);
+    const hits = all.filter(i => { const h = norm(DB.lessons[i].t + " " + sheikhName(i) + " " + (DB.ctx[i] || "")); return words.every(w => h.includes(w)); });
     $("#results").innerHTML = secH("نتائج البحث", hits.length + " نتيجة") + list("search", hits, { limit: 30, sheikh: true });
   });
 }
@@ -188,13 +190,13 @@ audio.addEventListener("play", refreshRows);
 audio.addEventListener("pause", () => { refreshRows(); savePos(); });
 audio.addEventListener("timeupdate", () => {
   $("#plTime").textContent = fmt(audio.currentTime);
-  if (audio.duration) $("#plSeek").value = audio.currentTime / audio.duration * 1000;
+  if (audio.duration) { $("#plSeek").value = audio.currentTime / audio.duration * 1000; seekFill(); }
   if (Math.floor(audio.currentTime) % 10 === 0) savePos();
 });
 audio.addEventListener("loadedmetadata", () => { $("#plDur").textContent = fmt(audio.duration); });
 audio.addEventListener("error", () => {
   if (!cur) return;
-  $("#plSub").textContent = "الملف ده مش متاح على الموقع دلوقتي — اسمعه على تليجرام ←";
+  $("#plSub").textContent = "الملف ده مش متاح على الموقع — اسمعه على تليجرام";
   refreshRows();
 });
 audio.addEventListener("ended", () => {
@@ -202,15 +204,53 @@ audio.addEventListener("ended", () => {
   if (part < L.p) { part++; audio.src = audioUrl(cur, part); audio.play(); return; }
   store.set("pos:" + cur, 0); step(1);
 });
-$("#plSeek").addEventListener("input", e => { if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; });
+function seekFill() { const el = $("#plSeek"); el.style.setProperty("--p", el.value / 10 + "%"); }
+$("#plSeek").addEventListener("input", e => { seekFill(); if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; });
 $("#plPlay").onclick = () => (audio.paused ? audio.play() : audio.pause());
 $("#plBack").onclick = () => (audio.currentTime = Math.max(0, audio.currentTime - 15));
 $("#plFwd").onclick = () => (audio.currentTime += 15);
 $("#plNext").onclick = () => step(1);
 $("#plPrev").onclick = () => step(-1);
-const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
-function setSpeed(v) { audio.playbackRate = v; store.set("speed", v); $("#plSpeed").textContent = v + "×"; }
-$("#plSpeed").onclick = () => setSpeed(SPEEDS[(SPEEDS.indexOf(audio.playbackRate) + 1) % SPEEDS.length] || 1);
+/* قايمة السرعات */
+const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2];
+const speedMenu = $("#speedMenu"), speedBtn = $("#plSpeed");
+function setSpeed(v) {
+  audio.playbackRate = v; store.set("speed", v); speedBtn.textContent = v + "×";
+  speedMenu.innerHTML = SPEEDS.map(x => `<button role="menuitemradio" aria-checked="${x === v}" data-speed="${x}">${x}×</button>`).join("");
+}
+function speedOpen(open) { speedMenu.hidden = !open; speedBtn.setAttribute("aria-expanded", open); }
+speedBtn.onclick = e => { e.stopPropagation(); speedOpen(speedMenu.hidden); };
+speedMenu.onclick = e => { const b = e.target.closest("[data-speed]"); if (b) { setSpeed(+b.dataset.speed); speedOpen(false); } };
+document.addEventListener("click", e => { if (!e.target.closest(".speed")) speedOpen(false); });
+
+/* المنيو الجانبي */
+const drawer = $("#drawer"), scrim = $("#scrim"), menuBtn = $("#menuBtn");
+function menu(open) {
+  drawer.hidden = scrim.hidden = !open; menuBtn.setAttribute("aria-expanded", open);
+  document.body.style.overflow = open ? "hidden" : "";
+  if (open) { markCurrent(); $("#menuClose").focus(); } else menuBtn.focus();
+}
+menuBtn.onclick = () => menu(true);
+$("#menuClose").onclick = scrim.onclick = () => menu(false);
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!drawer.hidden) menu(false); speedOpen(false); } });
+function buildDrawer() {
+  const main = DB.sheikhs.filter(s => s.main), rest = DB.sheikhs.filter(s => !s.main);
+  const k = s => encodeURIComponent(s.key);
+  let h = `<a href="/">الرئيسية</a><a href="/" data-jump="latest">آخر المستجدات</a>`;
+  h += `<h4>المشايخ</h4>` + main.map(s => `<a href="/s/${k(s)}">الشيخ ${esc(s.name)} <small>${count(s)}</small></a>`).join("");
+  h += `<h4>السلاسل</h4>` + main.flatMap(s => (s.series || []).map(se => `<a href="/s/${k(s)}/${se.key}">${esc(se.title)} <small>${seriesIds(se).length}</small></a>`)).join("");
+  h += `<h4>مواسم</h4>` + DB.collections.map(c => `<a href="/c/${c.key}">${esc(c.title)} <small>${c.ids.length}</small></a>`).join("");
+  h += `<h4>خطباء ومشايخ آخرون</h4>` + rest.map(s => `<a href="/s/${k(s)}">${esc(s.name)} <small>${count(s)}</small></a>`).join("");
+  $("#drawerNav").innerHTML = h;
+}
+function markCurrent() { const here = location.pathname; drawer.querySelectorAll("nav a").forEach(a => a.toggleAttribute("aria-current", a.getAttribute("href") === here && !a.dataset.jump)); }
+drawer.addEventListener("click", e => { if (e.target.closest("a")) setTimeout(() => menu(false), 0); });
+$("#drawerSearch").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const v = e.target.value.trim(); if (!v) return;
+  menu(false); if (pathParts().length) go("/");
+  setTimeout(() => { const q = $("#q"); q.value = v; q.dispatchEvent(new Event("input")); q.scrollIntoView({ block: "start" }); }, 30);
+});
 if ("mediaSession" in navigator) {
   navigator.mediaSession.setActionHandler("nexttrack", () => step(1));
   navigator.mediaSession.setActionHandler("previoustrack", () => step(-1));
@@ -261,7 +301,14 @@ document.addEventListener("click", e => {
 fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
   DB = d;
   DB.byKey = Object.fromEntries(DB.sheikhs.map(s => [s.key, s]));
-  $("#plSpeed").textContent = store.get("speed", 1) + "×";
+  // كلام إضافي للبحث: اسم السلسلة والقسم ونوع المقطع
+  DB.ctx = {};
+  const KW = { lesson: "درس دروس", khutba: "خطبة خطب الجمعة", tilawa: "تلاوة تلاوات", other: "" };
+  for (const [id, L] of Object.entries(DB.lessons)) DB.ctx[id] = KW[L.k] || "";
+  for (const sh of DB.sheikhs) for (const se of sh.series || []) for (const sec of se.sections) for (const id of sec.ids) DB.ctx[id] += " " + se.title + " " + (sec.t || "");
+  for (const c of DB.collections) for (const id of c.ids) DB.ctx[id] += " " + c.title;
+  setSpeed(store.get("speed", 1));
+  buildDrawer();
   // روابط قديمة بالشكل #/s/... تتحول للشكل الجديد
   if (location.hash.startsWith("#/")) history.replaceState(null, "", location.hash.slice(1) || "/");
   window.addEventListener("popstate", route);
