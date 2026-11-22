@@ -721,3 +721,16 @@ body.has-player{padding-bottom:200px}
   .drawer nav a .ms{font-size:19px}
   .drawer nav a small{font-size:11px;padding:0 6px}
 }
+
+/* صورة الدرس في المشغل */
+.pl-art{flex:none;width:46px;height:46px;border-radius:10px;overflow:hidden;container-type:inline-size;background:none;box-shadow:none}
+.pl-art > img{width:100%;height:100%;object-fit:cover}
+.art-mini{width:100%;height:100%;display:grid;place-items:center;border-radius:10px;color:var(--gold);font-family:var(--serif);font-size:22px;font-weight:700;border:1.5px solid rgba(207,166,74,.6)}
+.art-mini.t1{background:linear-gradient(135deg,#2e3f6b,#1a2646)}.art-mini.t2{background:linear-gradient(135deg,#1f5560,#123a42)}.art-mini.t3{background:linear-gradient(135deg,#5b2c3d,#3a1826)}.art-mini.t4{background:linear-gradient(135deg,#2f5a3c,#1b3a25)}
+.art-mini img{width:100%;height:100%;object-fit:cover}
+.player:not(.expanded) .pl-art .lcover{display:none}
+.player.expanded .pl-art{width:min(86vw,440px);height:auto;aspect-ratio:auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.player.expanded .pl-art .art-mini{display:none}
+.player.expanded .pl-art .lcover{border-radius:16px}
+.player.expanded .pl-art .lcover .cv-text b{font-size:clamp(16px,6cqw,26px);-webkit-line-clamp:4}
+@media (min-width:861px){.player:not(.expanded) .pl-art{width:60px;height:60px;grid-area:art}}
