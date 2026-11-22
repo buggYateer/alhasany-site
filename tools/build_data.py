@@ -208,6 +208,36 @@ for sh in sheikhs.values():
             sh["img"] = f"img/sheikhs/{sh['key']}.{ext}"
             break
 
+# --- اسم إنجليزي لكل شيخ (للينكات)
+WORDS = {
+    "محمد": "mohamed", "أحمد": "ahmed", "رأفت": "raafat", "صابر": "saber", "عبدالعزيز": "abdelaziz", "إبراهيم": "ibrahim",
+    "زكريا": "zakaria", "عوض": "awad", "حفني": "hefny", "حافظ": "hafez", "حسني": "hosny", "هاني": "hany", "الشيخ": "elsheikh",
+    "الشملي": "elshamly", "عبدالمقصود": "abdelmaksoud", "عبدالله": "abdallah", "الفالوجي": "elfalougy", "محمود": "mahmoud",
+    "نصار": "nassar", "صبري": "sabry", "هيثم": "haitham", "خليل": "khalil", "نبيل": "nabil", "وليد": "walid", "دويدار": "dowidar",
+    "جمال": "gamal", "المراكبي": "elmarakby", "بدر": "badr", "سليمان": "soliman", "إسماعيل": "ismail", "منير": "mounir",
+    "عبدالهادي": "abdelhady", "الغندور": "elghandour", "مطر": "matar", "زقزوق": "zakzouk", "عبدرب": "abdrabbo", "النبي": "elnaby",
+    "رحمة": "rahma", "يحيى": "yahya", "عبدالسلام": "abdelsalam", "سيد": "sayed", "عبدالعال": "abdelaal", "معاذ": "moaz",
+    "يوسف": "youssef", "مجدي": "magdy", "غير": "unknown", "محدد": "",
+}
+CH = dict(zip("ابتثجحخدذرزسشصضطظعغفقكلمنهوي", ["a", "b", "t", "th", "g", "h", "kh", "d", "z", "r", "z", "s", "sh", "s", "d", "t", "z", "a", "gh", "f", "k", "k", "l", "m", "n", "h", "w", "y"]))
+CH.update({"أ": "a", "إ": "e", "آ": "a", "ة": "a", "ى": "a", "ئ": "e", "ؤ": "o", "ء": ""})
+
+
+def slugify(key):
+    parts = []
+    for w in key.split("_"):
+        parts.append(WORDS.get(w) or "".join(CH.get(c, "") for c in w))
+    return "-".join(x for x in parts if x) or "sheikh"
+
+
+used = set()
+for sh in sheikhs.values():
+    sl = slugify(sh["key"])
+    while sl in used:
+        sl += "-2"
+    used.add(sl)
+    sh["slug"] = sl
+
 out = {
     "channel": "masjed_alhasany",
     "audioBase": AUDIO_BASE,

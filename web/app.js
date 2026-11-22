@@ -26,10 +26,14 @@ function monthOf(L) {
   if (!m || m > 12) return null;
   return { key: `${y}-${String(m).padStart(2, "0")}`, label: `${MONTHS[m - 1]} ${y}` };
 }
+const norm = s => s.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+const SURAHS = "الفاتحة البقرة آل_عمران النساء المائدة الأنعام الأعراف الأنفال التوبة يونس هود يوسف الرعد إبراهيم الحجر النحل الإسراء الكهف مريم طه الأنبياء الحج المؤمنون النور الفرقان الشعراء النمل القصص العنكبوت الروم لقمان السجدة الأحزاب سبأ فاطر يس الصافات ص الزمر غافر فصلت الشورى الزخرف الدخان الجاثية الأحقاف محمد الفتح الحجرات ق الذاريات الطور النجم القمر الرحمن الواقعة الحديد المجادلة الحشر الممتحنة الصف الجمعة المنافقون التغابن الطلاق التحريم الملك القلم الحاقة المعارج نوح الجن المزمل المدثر القيامة الإنسان المرسلات النبأ النازعات عبس التكوير الانفطار المطففين الانشقاق البروج الطارق الأعلى الغاشية الفجر البلد الشمس الليل الضحى الشرح التين العلق القدر البينة الزلزلة العاديات القارعة التكاثر العصر الهمزة الفيل قريش الماعون الكوثر الكافرون النصر المسد الإخلاص الفلق الناس".split(" ").map(x => x.replace("_", " "));
+const surahNo = n => { const k = norm(n).replace(/^سوره\s*/, ""); const i = SURAHS.findIndex(x => norm(x) === k); return i + 1; };
 /* السور في عنوان التلاوة */
 function surahsOf(t) {
-  const r = /سور(?:ة|تي)\s+(.+?)(?:\s+(?:في|من|كاملة)(?=\s|$)|\s*[–(-]|$)/.exec(t);
-  return r ? r[1].split(/\s+و(?=ال|[^\s]{2,})/).map(x => x.replace(/[()«»]/g, "").trim()).filter(Boolean) : [];
+  const out = [];
+  for (const m of t.matchAll(/سور(?:ة|تي)\s+(.+?)(?=\s+(?:في|من|كاملة)(?:\s|$)|\s+وآيات|\s*[–(-]|$)/g)) out.push(...m[1].split(/\s+و(?=ال|[^\s]{2,})/));
+  return out.map(x => x.replace(/[()«»]/g, "").trim()).filter(x => x && !x.startsWith("آيات"));
 }
 
 function audioUrl(id, p) {
@@ -38,6 +42,7 @@ function audioUrl(id, p) {
   return `${DB.audioBase}/audio-${Math.floor(id / 500)}/${name}`;
 }
 const sheikhOf = id => DB.byKey[DB.lessons[id].s];
+const findSheikh = x => DB.bySlug[x] || DB.byKey[x] || null;
 const sheikhName = id => (sheikhOf(id) || {}).name || "";
 const fmt = s => { s = Math.floor(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, "0"); return h ? `${h}:${String(m).padStart(2, "0")}:${x}` : `${m}:${x}`; };
 const parseDur = d => (d || "").split(":").reduce((a, b) => a * 60 + (+b || 0), 0);
@@ -85,8 +90,8 @@ function accordion(key, sections) {
     <div class="acc-b" id="${key}-${i}" hidden><div class="list" style="border:0;border-radius:0">${s.ids.map(id => row(id, key)).join("")}</div></div></section>`).join("");
 }
 const secH = (t, small = "", id = "", more = "") => `<div class="sec-h"${id ? ` id="${id}"` : ""}><h2>${esc(t)}</h2>${more ? `<a class="see-all" href="${more}">عرض الكل</a>` : small ? `<small>${esc(small)}</small>` : ""}</div>`;
-const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${encodeURIComponent(s.key)}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
-const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${encodeURIComponent(s.key)}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
+const sheikhCards = list => `<div class="sheikhs">${list.map(s => `<a class="sh-card" href="/s/${s.slug}">${arch(s)}<div class="who"><small>الشيخ</small><div class="name">${esc(s.name)}</div></div>${DAYS[s.key] ? `<div class="day">${DAYS[s.key]}</div>` : ""}<div class="meta">${count(s)} مقطع</div></a>`).join("")}</div>`;
+const othersGrid = list => `<div class="others">${list.map(s => `<a href="/s/${s.slug}">${esc(s.name)} <b>${count(s)}</b></a>`).join("")}</div>`;
 const pageHead = (t, sub) => `<div class="crumbs"><a href="/">الرئيسية</a> ‹ ${esc(t)}</div><div class="page-h"><h1>${esc(t)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
 const allIds = () => Object.keys(DB.lessons).map(Number).sort((a, b) => b - a);
 
@@ -122,7 +127,6 @@ function home() {
 }
 
 /* البحث (أيقونة في الهيدر) */
-const norm = s => s.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
 function searchIds(q) {
   const words = norm(q.trim()).split(/\s+/).filter(Boolean);
   if (!words.length) return [];
@@ -165,8 +169,9 @@ function sheikhTabs(sh) {
   return tabs;
 }
 function sheikhPage(key, sel) {
-  const sh = DB.byKey[key];
+  const sh = findSheikh(key);
   if (!sh) return notFound();
+  if (key !== sh.slug) history.replaceState(null, "", `/s/${sh.slug}${sel ? "/" + sel : ""}`);
   const tabs = sheikhTabs(sh);
   const active = tabs.find(t => t.id === sel) || tabs[0];
   let side = "", g = "";
@@ -207,7 +212,7 @@ const PAGES = {
   latest: () => { const ids = allIds(); app.innerHTML = pageHead("آخر المستجدات", "كل مقاطع القناة، الأحدث الأول") + list("p:latest", ids, { limit: 30, sheikh: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   series: () => {
-    const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${encodeURIComponent(sh.key)}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
+    const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${sh.slug}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${cards.join("")}</div>`;
   },
   lessons: () => filterPage("lessons", "الدروس", "درس", "lesson", ["sheikh", "series", "month"]),
@@ -223,11 +228,12 @@ document.addEventListener("toggle", e => { if (e.target.classList && e.target.cl
 /* صفحة فيها فلاتر (الشيخ / الشهر / السورة / السلسلة) — الاختيارات بتتحفظ في اللينك */
 const seriesOf = id => { for (const sh of DB.sheikhs) for (const se of sh.series || []) if (seriesIds(se).includes(id)) return se; return null; };
 function filterPage(page, title, unit, kind, fields) {
+  { const q0 = new URLSearchParams(location.search); const v = q0.get("sheikh"); if (v && !DB.bySlug[v] && DB.byKey[v]) { q0.set("sheikh", DB.byKey[v].slug); history.replaceState(null, "", location.pathname + "?" + q0); } }
   const base = allIds().filter(i => DB.lessons[i].k === kind && !DB.collections.some(c => c.ids.includes(i)));
   const facet = {
-    sheikh: { label: "الشيخ", all: "كل المشايخ", of: i => DB.lessons[i].s ? [DB.lessons[i].s] : [], name: k => (DB.byKey[k] || {}).name || k },
+    sheikh: { label: "الشيخ", all: "كل المشايخ", of: i => { const sh = DB.byKey[DB.lessons[i].s]; return sh ? [sh.slug] : []; }, name: k => (DB.bySlug[k] || {}).name || k },
     month: { label: "الشهر", all: "كل الشهور", of: i => { const m = monthOf(DB.lessons[i]); return m ? [m.key] : []; }, name: k => { const [y, m] = k.split("-"); return `${MONTHS[+m - 1]} ${y}`; }, sort: (a, b) => b.localeCompare(a) },
-    surah: { label: "السورة", all: "كل السور", of: i => surahsOf(DB.lessons[i].t), name: k => k },
+    surah: { label: "السورة", all: "كل السور", of: i => surahsOf(DB.lessons[i].t).map(n => String(surahNo(n) || n)), name: k => SURAHS[+k - 1] || k, sort: (a, b) => (+a || 999) - (+b || 999) },
     series: { label: "السلسلة", all: "كل الدروس", of: i => { const se = seriesOf(i); return [se ? se.key : "_"]; }, name: k => k === "_" ? "دروس متفرقة" : (DB.sheikhs.flatMap(s => s.series || []).find(x => x.key === k) || {}).title || k },
   };
   const q = new URLSearchParams(location.search);
@@ -429,9 +435,9 @@ document.addEventListener("click", e => {
   const tab = e.target.closest("[data-tab]");
   if (tab) {
     const key = pathParts()[1];
-    history.replaceState(null, "", `/s/${encodeURIComponent(key)}/${tab.dataset.tab}`);
+    history.replaceState(null, "", `/s/${findSheikh(key).slug}/${tab.dataset.tab}`);
     document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === tab));
-    const sh = DB.byKey[key];
+    const sh = findSheikh(key);
     renderPanel(sh, sheikhTabs(sh).find(t => t.id === tab.dataset.tab));
     tab.scrollIntoView({ block: "nearest", inline: "center" });
     if (window.innerWidth <= 860) $("#panel").scrollIntoView({ block: "start" });
@@ -457,6 +463,7 @@ document.addEventListener("click", e => {
 fetch("/lessons.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
   DB = d;
   DB.byKey = Object.fromEntries(DB.sheikhs.map(s => [s.key, s]));
+  DB.bySlug = Object.fromEntries(DB.sheikhs.map(s => [s.slug, s]));
   // كلام إضافي للبحث: اسم السلسلة والقسم ونوع المقطع
   DB.ctx = {};
   const KW = { lesson: "درس دروس", khutba: "خطبة خطب الجمعة", tilawa: "تلاوة تلاوات", other: "" };
