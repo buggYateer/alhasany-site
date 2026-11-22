@@ -916,3 +916,18 @@ button.pl-tg:hover{background:rgba(255,255,255,.1)}
 @media (max-width:860px){
   .card-row,.series-row{margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px}
 }
+
+/* القايمة: العناوين غامقة، والمفتوح لون فاتح مختلف */
+.drawer h4{background:var(--navy);color:#fff;border-inline-start:4px solid var(--gold)}
+.drawer nav a[aria-current]{background:var(--tint);color:var(--accent);font-weight:700;box-shadow:inset -4px 0 0 var(--gold)}
+.drawer nav a[aria-current] .ms{color:var(--accent)}
+.drawer nav a[aria-current] small{background:var(--surface);border-color:var(--line);color:var(--accent)}
+:root[data-theme="dark"] .drawer h4{background:var(--navy-d);color:var(--gold)}
+:root[data-theme="dark"] .drawer nav a[aria-current],:root[data-theme="dark"] .drawer nav a[aria-current] .ms{color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .drawer h4{background:var(--navy-d);color:var(--gold)}:root:not([data-theme="light"]) .drawer nav a[aria-current],:root:not([data-theme="light"]) .drawer nav a[aria-current] .ms{color:#fff}}
+@media (max-width:860px){
+  .side button[aria-selected="true"]{background:var(--tint);color:var(--accent);font-weight:700;border-color:var(--gold)}
+  .side button[aria-selected="true"] b{color:var(--accent)}
+  :root[data-theme="dark"] .side button[aria-selected="true"],:root[data-theme="dark"] .side button[aria-selected="true"] b{color:#fff}
+}
+@media (max-width:860px) and (prefers-color-scheme:dark){:root:not([data-theme="light"]) .side button[aria-selected="true"],:root:not([data-theme="light"]) .side button[aria-selected="true"] b{color:#fff}}
