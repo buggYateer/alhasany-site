@@ -122,7 +122,7 @@ function home() {
       <button class="big-play" data-play="${latest}" data-list="feature">${SVG_PLAY}<span>استمع للدرس</span></button></article>
   </section>
   ${secH("دروس الأسبوع", "", "sheikhs", "/weekly")}${sheikhCards(main)}
-  ${secH("آخر المستجدات", "", "latest", "/latest")}${list("latest", all, { limit: 8, sheikh: true })}
+  ${secH("آخر المستجدات", "", "latest")}${list("latest", all.slice(0, 10), { sheikh: true })}
   ${secH("خطباء ومشايخ آخرون", "", "", "/others")}${othersGrid(rest.slice(0, 8))}`;
 }
 
@@ -209,7 +209,7 @@ function renderPanel(sh, tab) {
 
 /* صفحات المنيو */
 const PAGES = {
-  latest: () => { const ids = allIds(); app.innerHTML = pageHead("آخر المستجدات", "كل مقاطع القناة، الأحدث الأول") + list("p:latest", ids, { limit: 30, sheikh: true }); },
+  latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true }); },
   weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) + `<div class="sec-h"><h2>خطباء ومشايخ آخرون</h2><a class="see-all" href="/others">عرض الكل</a></div>` + othersGrid(DB.sheikhs.filter(s => !s.main).slice(0, 8)); },
   series: () => {
     const cards = DB.sheikhs.flatMap(sh => (sh.series || []).map(se => `<a class="series-card" href="/s/${sh.slug}/${se.key}"><h3>${esc(se.title)}</h3><p>الشيخ ${esc(sh.name)}</p><small>${seriesIds(se).length} درس</small></a>`));
