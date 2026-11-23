@@ -955,3 +955,11 @@ html.menu-open,html.menu-open body{overflow:hidden}
   .wk-list .sh-card .who{align-items:flex-start;min-width:0}
   .wk-list .sh-card .day{flex:none}
 }
+/* صفحة دروس الأسبوع على الكمبيوتر: ٤ مربعات كبار */
+@media (min-width:861px){
+  .sheikhs.wk-list{gap:22px}
+  .wk-list .sh-card{aspect-ratio:1;justify-content:center;gap:18px;padding:24px}
+  .wk-list .sh-card .who small{font-size:18px}
+  .wk-list .sh-card .name{font-size:30px}
+  .wk-list .sh-card .day{font-size:16px;padding:4px 18px}
+}
