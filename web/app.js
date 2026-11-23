@@ -272,7 +272,7 @@ function renderPanel(sh, tab) {
 /* صفحات المنيو */
 const PAGES = {
   latest: () => { const ids = allIds().slice(0, 10); app.innerHTML = pageHead("آخر المستجدات", "آخر 10 مقاطع نُشرت على القناة") + list("p:latest", ids, { sheikh: true, kind: true }); },
-  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)) ; },
+  weekly: () => { app.innerHTML = pageHead("دروس الأسبوع", "مشايخ الدروس الأسبوعية في المسجد") + sheikhCards(DB.sheikhs.filter(s => s.main)).replace(`class="sheikhs"`, `class="sheikhs wk-list"`); },
   popular: () => { const ids = popularPage(); LISTS["p:popular"] = ids; app.innerHTML = pageHead("الأكثر استماعًا", "أكثر ما استُمع إليه لكل شيخ") + `<div class="card-grid">${ids.map(i => lessonCard(i, "p:popular")).join("")}</div>`; },
   series: () => {
     app.innerHTML = pageHead("السلاسل", "سلاسل الدروس بالترتيب") + `<div class="series-grid">${allSeries().map(([se, sh]) => seriesCard(se, sh)).join("")}</div>`;
@@ -344,7 +344,9 @@ document.addEventListener("click", e => {
   const q = new URLSearchParams(location.search); q.delete("series");
   if (b.dataset.qsh) q.set("sheikh", b.dataset.qsh); else q.delete("sheikh");
   history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+  const x = b.parentNode.scrollLeft;
   route(true);
+  const n = document.querySelector(".qchips"); if (n) n.scrollLeft = x; // الأزرار تفضل واقفة مكانها
 });
 
 /* أقسام ليالي رمضان حسب عنوان المقطع */

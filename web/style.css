@@ -948,3 +948,10 @@ html.menu-open,html.menu-open body{overflow:hidden}
 .qchips button:hover{border-color:var(--gold)}
 .qchips button.on{background:var(--tint);color:var(--accent);border-color:var(--gold);font-weight:700}
 @media (max-width:860px){.qchips{margin-inline:-16px;padding-inline:16px}}
+/* صفحة دروس الأسبوع على الموبايل: كل شيخ في صف لوحده */
+@media (max-width:860px){
+  .sheikhs.wk-list{grid-template-columns:1fr;gap:10px}
+  .wk-list .sh-card{flex-direction:row;justify-content:space-between;align-items:center;padding:16px 18px;text-align:start;min-height:0}
+  .wk-list .sh-card .who{align-items:flex-start;min-width:0}
+  .wk-list .sh-card .day{flex:none}
+}
