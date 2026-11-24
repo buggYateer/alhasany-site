@@ -426,7 +426,7 @@ function expand(on, viaHistory) {
 }
 player.addEventListener("click", e => {
   if (player.classList.contains("expanded")) return;
-  if (e.target.closest("button, a, input, .speed-menu")) return;
+  if (e.target.closest("button, a, input, .speed-menu, .vol") || Date.now() - (window.volDragEnd || 0) < 400) return; // سحب الصوت مايفتحش المشغل الكبير
   expand(true);
 });
 $("#plMin").onclick = () => expand(false);
@@ -509,7 +509,7 @@ let volDrag = false;
 const volAt = e => { const r = volEl.getBoundingClientRect(); setVol((r.bottom - e.clientY) / r.height * 100); };
 volPop.addEventListener("pointerdown", e => { if (e.target.closest(".vol-mute")) return; e.preventDefault(); volDrag = true; volPop.setPointerCapture(e.pointerId); volAt(e); });
 volPop.addEventListener("pointermove", e => { if (volDrag) { e.preventDefault(); volAt(e); } });
-const volEnd = () => { volDrag = false; };
+const volEnd = () => { if (volDrag) window.volDragEnd = Date.now(); volDrag = false; };
 volPop.addEventListener("pointerup", volEnd); volPop.addEventListener("pointercancel", volEnd);
 volPop.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 $("#plVolWrap").addEventListener("wheel", e => { e.preventDefault(); setVol(+volEl.value - Math.sign(e.deltaY) * 5); }, { passive: false });
