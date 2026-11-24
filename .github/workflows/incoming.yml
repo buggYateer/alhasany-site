@@ -1,5 +1,6 @@
 name: نقل الصوت الجديد للـ Releases
-# الداشبورد بترفع الصوت في incoming/<رقم الرسالة>.mp3 — هنا بيتنقل لـ Release audio-N ويتمسح من المستودع
+# الداشبورد بترفع الصوت في incoming/<رقم الرسالة>.mp3 (القديمة) أو incoming/<رقم>.json فيه رابط Vercel Blob (الجديدة)
+# هنا بيتنقل لـ Release audio-N ويتمسح من المستودع
 on:
   push:
     branches: [main]
@@ -19,13 +20,21 @@ jobs:
         run: |
           shopt -s nullglob
           moved=0
-          for f in incoming/*.mp3; do
-            id=$(basename "$f" .mp3)
+          mkdir -p /tmp/audio
+          for f in incoming/*.json incoming/*.mp3; do
+            id=$(basename "$f"); id=${id%.*}
             case "$id" in (*[!0-9_]*|'') echo "اسم غلط: $f"; continue;; esac
+            src="$f"
+            if [ "${f##*.}" = "json" ]; then
+              url=$(jq -r .url "$f")
+              case "$url" in (https://*.public.blob.vercel-storage.com/*) ;; (*) echo "رابط غلط في $f"; continue;; esac
+              curl -fsSL "$url" -o "/tmp/audio/$id.mp3" || { echo "التحميل فشل: $f"; continue; }
+              src="/tmp/audio/$id.mp3"
+            fi
             num=${id%%_*}
             tag="audio-$((num / 500))"
             gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "صوتيات $tag" --notes "ملفات صوت موقع مسجد الحسني"
-            gh release upload "$tag" "$f" --clobber
+            gh release upload "$tag" "$src" --clobber
             git rm -q "$f"
             moved=$((moved + 1))
           done

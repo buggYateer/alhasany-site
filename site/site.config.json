@@ -1,0 +1,115 @@
+{
+  "name": "مسجد الحسني",
+  "shortName": "مسجد الحسني",
+  "description": "دروس وخطب وتلاوات مسجد الحسني — استمع من الموقع مباشرة",
+  "domain": "https://masjed-alhasany.vercel.app",
+  "telegramChannel": "masjed_alhasany",
+  "githubRepo": "buggYateer/alhasany-site",
+  "audioBase": "",
+  "colors": {
+    "primary": "#2e3f6b",
+    "highlight": "#cfa64a",
+    "background": "#eef1f7",
+    "tones": [
+      "#2e3f6b",
+      "#1f5560",
+      "#5b2c3d",
+      "#2f5a3c"
+    ]
+  },
+  "design": {
+    "font": "IBM Plex Sans Arabic",
+    "corners": "soft",
+    "header": "colored"
+  },
+  "i18n": {
+    "default": "ar",
+    "locales": [
+      "ar",
+      "en"
+    ]
+  },
+  "storage": {
+    "data": {
+      "provider": "github-json"
+    },
+    "audio": {
+      "provider": "github-releases"
+    }
+  },
+  "sheikhs": [
+    {
+      "key": "يحيى_زكريا",
+      "name": "يحيى زكريا",
+      "aliases": [
+        "يحيى"
+      ],
+      "main": true,
+      "day": "درس الأربعاء",
+      "tone": 1
+    },
+    {
+      "key": "أحمد_عبدالسلام",
+      "name": "أحمد عبدالسلام",
+      "aliases": [
+        "أحمد"
+      ],
+      "main": true,
+      "day": "درس الثلاثاء",
+      "tone": 2
+    },
+    {
+      "key": "سيد_عبدالعال",
+      "name": "سيد عبدالعال",
+      "aliases": [
+        "سيد"
+      ],
+      "main": true,
+      "day": "درس الجمعة",
+      "tone": 3
+    },
+    {
+      "key": "معاذ_زكريا",
+      "name": "معاذ زكريا",
+      "aliases": [
+        "معاذ"
+      ],
+      "main": true,
+      "day": "درس السبت",
+      "tone": 4
+    }
+  ],
+  "kinds": {
+    "khutba": [
+      "#خطبة_الجمعة",
+      "خطبة"
+    ],
+    "tilawa": [
+      "تلاوة",
+      "صلاة العشاء",
+      "صلاة الفجر"
+    ],
+    "other": [
+      "أذان",
+      "إعلان"
+    ]
+  },
+  "sheikhPrefixes": [
+    "الشيخ",
+    "ش",
+    "Sheikh",
+    "Shaykh",
+    "مولانا",
+    "Шейх"
+  ],
+  "collections": [
+    {
+      "key": "ramadan",
+      "title": "ليالي رمضان",
+      "label": "التراويح والتهجد",
+      "icon": "bedtime",
+      "match": "رمضان"
+    }
+  ],
+  "ignore": []
+}
