@@ -62,7 +62,10 @@ export function PlayerProvider({ children, audioBase, channel, siteName, logo }:
   const [volStr, setVolStr] = useStored("vol", "1");
   const volume = Math.min(1, Math.max(0, Number(volStr)));
   useEffect(() => {
-    if (audio.current) audio.current.volume = volume;
+    if (audio.current) {
+      audio.current.volume = volume;
+      audio.current.muted = volume === 0;
+    }
   }, [volume]);
   const setVolume = useCallback((v: number) => setVolStr(String(Math.min(1, Math.max(0, Math.round(v * 100) / 100)))), [setVolStr]);
   const ref = useRef(s);

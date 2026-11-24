@@ -1,14 +1,15 @@
-import { getTranslations } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 import { Link } from "@/i18n/navigation";
+import { strings } from "@/lib/ah";
 
 export default async function NotFound() {
-  const t = await getTranslations("common");
+  const S = strings((await rootLocale()) ?? "ar");
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16 text-center text-muted-foreground">
-      <p className="text-lg">{t("notFound")}</p>
-      <Link href="/" className="mt-3 inline-block font-bold text-primary underline">
-        {t("backHome")}
+    <p className="empty">
+      {S.notFound}{" "}
+      <Link href="/" style={{ textDecoration: "underline" }}>
+        {S.backHome}
       </Link>
-    </main>
+    </p>
   );
 }

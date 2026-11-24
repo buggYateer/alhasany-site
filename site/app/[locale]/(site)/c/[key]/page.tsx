@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { PageHead } from "@/components/blocks";
-import { CollectionView } from "@/components/collection-view";
-import { LessonList } from "@/components/lesson-list";
+import { AhCollection } from "@/components/ah/collection";
 import { getLookup, getSite } from "@/lib/data";
 
 export async function generateStaticParams() {
@@ -26,14 +24,11 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/c/[key]"
 
 export default async function CollectionPage({ params }: PageProps<"/[locale]/c/[key]">) {
   const { lk, c } = await find(params);
-  const t = await getTranslations("common");
-  const items = lk.items([...c.ids].sort((a, b) => a - b));
+  const locale = await rootLocale();
+  const title = locale === "ar" ? c.title : "Ramadan nights";
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <PageHead title={c.title} sub={t("clips", { count: items.length })} share={`/c/${c.key}`} />
-      <Suspense fallback={<LessonList items={items} showSheikh />}>
-        <CollectionView items={items} />
-      </Suspense>
-    </main>
+    <Suspense>
+      <AhCollection path={`/c/${c.key}`} title={title} items={lk.items(c.ids)} />
+    </Suspense>
   );
 }

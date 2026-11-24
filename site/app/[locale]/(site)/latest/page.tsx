@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { PageHead } from "@/components/blocks";
-import { LessonList } from "@/components/lesson-list";
+import { locale as rootLocale } from "next/root-params";
+import { PageHead, withLocale } from "@/components/ah/blocks";
+import { List } from "@/components/ah/list";
+import { strings } from "@/lib/ah";
 import { getLookup } from "@/lib/data";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("pages.latest");
-  return { title: t("title"), description: t("sub") };
+  const S = strings(await rootLocale());
+  return { title: S.latest, description: S.latestSub };
 }
 
 export default async function Latest() {
-  const [lk, t] = await Promise.all([getLookup(), getTranslations("pages.latest")]);
+  const locale = await rootLocale();
+  const S = strings(locale);
+  const lk = await getLookup();
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <PageHead title={t("title")} sub={t("sub")} share="/latest" />
-      <LessonList items={lk.items(lk.ids.slice(0, 10))} showSheikh showKind />
-    </main>
+    <>
+      <PageHead t={S.latest} sub={S.latestSub} share={withLocale(locale, "/latest")} S={S} />
+      <List items={lk.items(lk.ids.slice(0, 10))} sheikh kind />
+    </>
   );
 }

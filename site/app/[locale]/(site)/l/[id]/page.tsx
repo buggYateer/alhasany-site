@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 import { notFound } from "next/navigation";
-import { Crumbs } from "@/components/blocks";
-import { Cover } from "@/components/cover";
-import { LessonActions } from "@/components/lesson-actions";
+import { withLocale } from "@/components/ah/blocks";
+import { LessonCover } from "@/components/ah/cover";
+import { ShareBtn } from "@/components/ah/global";
+import { LessonActions } from "@/components/ah/lesson-actions";
 import { Link } from "@/i18n/navigation";
+import { BADGE_CLASS, hijriText, strings } from "@/lib/ah";
 import { getLookup, getSite } from "@/lib/data";
-import { formatHijri } from "@/lib/text";
 
 export async function generateStaticParams() {
   return Object.keys((await getSite()).lessons).map((id) => ({ id }));
@@ -21,59 +22,66 @@ async function find(params: Promise<{ id: string }>) {
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/l/[id]">): Promise<Metadata> {
   const { item } = await find(params);
-  const t = await getTranslations("common");
-  const by = item.sh ? `${t("sheikh")} ${item.sh.name}` : "";
+  const S = strings(await rootLocale());
+  const by = item.sh ? `${S.sheikh} ${item.sh.name}` : "";
   return { title: item.t, description: [by, item.se?.title].filter(Boolean).join(" — ") || undefined, openGraph: { title: item.t, description: by || undefined, type: "music.song" } };
 }
 
-/** One page per recording: shareable link with its own title and preview. */
+/** One page per recording (/l/640) — lessonPage() in web/app.js. */
 export default async function LessonPage({ params }: PageProps<"/[locale]/l/[id]">) {
-  const { item } = await find(params);
-  const t = await getTranslations();
-  const hijri = formatHijri(item.h, t.raw("common.months") as string[], t("common.hijriSuffix"));
+  const { item: it } = await find(params);
+  const locale = await rootLocale();
+  const S = strings(locale);
+  const sh = it.sh,
+    se = it.se;
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <Crumbs
-        items={[
-          ...(item.sh ? [{ href: `/s/${item.sh.slug}`, label: item.sh.name }] : []),
-          ...(item.sh && item.se ? [{ href: `/s/${item.sh.slug}/${item.se.key}`, label: item.se.title }] : []),
-        ]}
-      />
-      <article className="mm-lesson-page mt-2 grid items-start gap-6 md:grid-cols-[minmax(0,420px)_1fr]">
-        <Cover
-          pat={item.id}
-          tone={item.sh?.tone}
-          kind={item.k}
-          tag={item.se?.sec || item.se?.title || t(`kind.${item.k}`)}
-          title={item.t}
-          byline={item.sh ? `${t("common.sheikh")} ${item.sh.name}` : undefined}
-          className="rounded-xl"
-        />
-        <div>
-          <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-accent-foreground">{t(`kind.${item.k}`)}</span>
-          <h1 className="my-2 text-3xl leading-snug font-extrabold">
-            {item.n ? <span className="text-primary">{item.n} </span> : null}
-            {item.t}
+    <>
+      <div className="crumbs">
+        <Link href="/">{S.home}</Link>
+        {sh ? (
+          <>
+            {" ‹ "}
+            <Link href={`/s/${sh.slug}`}>{sh.name}</Link>
+          </>
+        ) : null}
+        {sh && se ? (
+          <>
+            {" ‹ "}
+            <Link href={`/s/${sh.slug}/${se.key}`}>{se.title}</Link>
+          </>
+        ) : null}
+      </div>
+      <article className="lesson-page">
+        <div className="lp-cover">
+          <LessonCover it={it} S={S} />
+        </div>
+        <div className="lp-info">
+          {S.badge[it.k] ? <span className={`badge-k ${BADGE_CLASS[it.k]}`}>{S.badge[it.k]}</span> : null}
+          <h1>
+            {it.n ? (
+              <>
+                <span className="n">{it.n}</span>{" "}
+              </>
+            ) : null}
+            {it.t}
           </h1>
-          <p className="text-muted-foreground">
-            {item.sh ? (
-              <Link href={`/s/${item.sh.slug}`} className="font-semibold text-primary hover:underline">
-                {t("common.sheikh")} {item.sh.name}
+          <p className="lp-meta">
+            {sh ? (
+              <Link href={`/s/${sh.slug}`}>
+                {S.sheikh} {sh.name}
               </Link>
             ) : null}
-            {item.sh && item.se ? (
+            {sh && se ? (
               <>
                 {" · "}
-                <Link href={`/s/${item.sh.slug}/${item.se.key}`} className="font-semibold text-primary hover:underline">
-                  {item.se.title}
-                </Link>
+                <Link href={`/s/${sh.slug}/${se.key}`}>{se.title}</Link>
               </>
             ) : null}
           </p>
-          <p className="text-muted-foreground">{[hijri, item.d].filter(Boolean).join(" · ")}</p>
-          <LessonActions item={item} />
+          <p className="lp-meta2">{[hijriText(it.h, S), it.d].filter(Boolean).join(" · ")}</p>
+          <LessonActions it={it} share={<ShareBtn path={withLocale(locale, `/l/${it.id}`)} title={it.t} cls="lp-btn" label={S.share} />} />
         </div>
       </article>
-    </main>
+    </>
   );
 }

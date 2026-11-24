@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { PageHead } from "@/components/blocks";
-import { OthersSorted } from "@/components/others-sorted";
+import { locale as rootLocale } from "next/root-params";
+import { AhOthers } from "@/components/ah/others";
+import { strings } from "@/lib/ah";
 import { getLookup } from "@/lib/data";
 import { clipCount } from "@/lib/library";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("pages.others");
-  return { title: t("title") };
+  const S = strings(await rootLocale());
+  return { title: S.others };
 }
 
 export default async function Others() {
-  const [lk, t] = await Promise.all([getLookup(), getTranslations("pages.others")]);
-  const rest = lk.site.sheikhs.filter((s) => !s.main).map((s) => ({ slug: s.slug, name: s.name, n: clipCount(s) }));
-  return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <PageHead title={t("title")} sub={t("sub", { count: rest.length })} share="/others" />
-      <OthersSorted list={rest} />
-    </main>
-  );
+  const lk = await getLookup();
+  const rest = lk.site.sheikhs.filter((s) => !s.main).map((s) => ({ key: s.key, slug: s.slug, name: s.name, n: clipCount(s) }));
+  return <AhOthers list={rest} />;
 }

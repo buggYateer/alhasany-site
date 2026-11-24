@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 import { Suspense } from "react";
-import { PageHead } from "@/components/blocks";
-import { SearchResults } from "@/components/search-results";
+import { AhSearch } from "@/components/ah/search";
+import { strings } from "@/lib/ah";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("pages.search");
-  return { title: t("title"), robots: { index: false } };
+  const S = strings(await rootLocale());
+  return { title: S.searchTitle, robots: { index: false } };
 }
 
-export default async function SearchPage() {
-  const t = await getTranslations("pages.search");
+export default function SearchPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <PageHead title={t("title")} />
-      <Suspense>
-        <SearchResults />
-      </Suspense>
-    </main>
+    <Suspense>
+      <AhSearch />
+    </Suspense>
   );
 }

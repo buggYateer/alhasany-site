@@ -1,116 +1,95 @@
-import { getTranslations } from "next-intl/server";
-import { OthersGrid, Rail, SectionHead, SeriesCard, SheikhCards } from "@/components/blocks";
-import { iconFor } from "@/components/icons";
-import { InstallBar } from "@/components/install";
-import { FeaturePlay, HomeCards } from "@/components/home-client";
-import { LessonList } from "@/components/lesson-list";
+import { locale as rootLocale } from "next/root-params";
+import { OthersGrid, SecH, SeriesCard, SheikhCards } from "@/components/ah/blocks";
+import { InstallBar } from "@/components/ah/install";
+import { BigPlay, CardRow, List } from "@/components/ah/list";
 import { Link } from "@/i18n/navigation";
-import { currentWeek, getCategories, getLookup } from "@/lib/data";
+import { hijriText, strings } from "@/lib/ah";
+import { siteCats } from "@/lib/ah-server";
+import { currentWeek, getLookup } from "@/lib/data";
 import { popularPicks } from "@/lib/library";
-import { formatHijri } from "@/lib/text";
 
+/** The home page — same sections and markup as home() in web/app.js. */
 export default async function Home() {
-  const [lk, cats, t] = await Promise.all([getLookup(), getCategories(), getTranslations()]);
+  const locale = await rootLocale();
+  const S = strings(locale);
+  const lk = await getLookup();
   const { site } = lk;
-  const latest = lk.ids.find((i) => site.lessons[String(i)].p && site.lessons[String(i)].k === "lesson") ?? lk.ids[0];
-  const feature = latest !== undefined ? lk.item(latest) : null;
-  const tilawat = lk.items(lk.ids.filter((i) => site.lessons[String(i)].k === "tilawa" && !lk.inCollection.has(i)).slice(0, 3));
+  const all = lk.ids;
+  const L = (i: number) => site.lessons[String(i)];
+  const latest = all.find((i) => L(i).p && L(i).k === "lesson") ?? all[0];
+  const feature = lk.item(latest);
   const main = site.sheikhs.filter((s) => s.main);
   const rest = site.sheikhs.filter((s) => !s.main);
-  const latestCards = lk.items(lk.ids.slice(0, 4));
-  const popular = lk.items(popularPicks(lk, await currentWeek()));
+  const tilawat = lk.items(all.filter((i) => L(i).k === "tilawa" && !lk.inCollection.has(i)).slice(0, 3));
   const featured = lk.items(site.featured.slice(0, 8));
+  const latestCards = lk.items(all.slice(0, 4));
+  const popular = lk.items(popularPicks(lk, await currentWeek()));
   const allSeries = site.sheikhs.flatMap((sh) => (sh.series ?? []).map((se) => ({ se, sh })));
-  const hijri = (h: string) => formatHijri(h, t.raw("common.months") as string[], t("common.hijriSuffix"));
+  const cats = await siteCats(S, locale);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
+    <>
       <InstallBar />
-      <nav aria-label={t("nav.sections")} className="mm-cats grid grid-cols-2 gap-2.5 md:grid-cols-4">
-        {cats.map((c) => {
-          const Icon = iconFor(c.icon);
-          return (
-            <Link key={c.href} href={c.href} className="mm-cat flex items-center gap-3 rounded-xl border bg-card px-3.5 py-3 transition-colors hover:border-primary">
-              <span className="mm-cat-icon grid size-11 shrink-0 place-items-center rounded-lg bg-accent text-primary">
-                <Icon className="size-6" />
+      <section className="hero">
+        <nav className="cats" aria-label={S.sections}>
+          {cats.map((c) => (
+            <Link key={c.href} className="cat" href={c.href}>
+              <span className="ms" aria-hidden="true">
+                {c.icon}
               </span>
-              <b className="mm-cat-name flex-1 text-[16px] leading-tight">{c.label ?? t(`nav.${c.key}` as "nav.lessons")}</b>
-              <small className="mm-cat-n font-bold text-muted-foreground tabular-nums">{c.n}</small>
+              <b>{c.t}</b>
+              <small>{c.n}</small>
             </Link>
-          );
-        })}
-      </nav>
-
-      <div className="mt-5 grid items-start gap-5 md:grid-cols-2">
-        {feature ? (
-          <article className="mm-feature flex h-full flex-col gap-1.5 rounded-xl bg-primary p-6 text-primary-foreground md:order-last dark:border dark:bg-card dark:text-card-foreground">
-            <small className="mm-feature-tag font-bold opacity-80">{t("home.latestLesson")}</small>
-            <h2 className="text-2xl font-extrabold">{feature.t}</h2>
-            <p className="mb-3 opacity-85">
-              {feature.sh ? `${t("common.sheikh")} ${feature.sh.name}` : ""}
-              {feature.h ? ` — ${hijri(feature.h)}` : ""}
-            </p>
-            <FeaturePlay item={feature} label={t("home.listenLesson")} />
-          </article>
-        ) : null}
-        {tilawat.length ? (
-          <section>
-            <SectionHead title={t("home.latestTilawat")} href="/tilawat" />
-            <LessonList items={tilawat} showSheikh />
-          </section>
-        ) : null}
+          ))}
+        </nav>
+      </section>
+      <div className="duo2">
+        <section className="duo2-ti">
+          <SecH t={S.latestTilawat} id="tilawat" more="/tilawat" S={S} />
+          <List items={tilawat} sheikh />
+        </section>
+        <article className="feature">
+          <small>{S.latestLesson}</small>
+          <h2>{feature.t}</h2>
+          <p>
+            {feature.sh ? (
+              <>
+                {S.sheikh} <bdi>{feature.sh.name}</bdi>
+              </>
+            ) : null}
+            {feature.h ? ` — ${hijriText(feature.h, S)}` : ""}
+          </p>
+          <BigPlay it={feature} label={S.listenLesson} />
+        </article>
       </div>
-
       {featured.length ? (
         <>
-          <SectionHead title={t("home.featured")} />
-          <Rail>
-            <HomeCards items={featured} />
-          </Rail>
+          <SecH t={S.featured} S={S} />
+          <CardRow items={featured} />
         </>
       ) : null}
-
-      {main.length ? (
-        <>
-          <SectionHead title={t("home.weekly")} id="sheikhs" />
-          <SheikhCards list={main} />
-        </>
-      ) : null}
-
-      <div className="grid gap-x-5 md:grid-cols-2">
+      <SecH t={S.weekly} id="sheikhs" S={S} />
+      <SheikhCards list={main} locale={locale} S={S} />
+      <div className="duo">
         <section>
-          <SectionHead title={t("home.latest")} href="/latest" />
-          <div className="grid grid-cols-2 gap-3">
-            <HomeCards items={latestCards} />
-          </div>
+          <SecH t={S.latest} id="latest" more="/latest" S={S} />
+          <CardRow items={latestCards} className="card-row duo-grid" />
         </section>
         {popular.length ? (
           <section>
-            <SectionHead title={t("home.popular")} href="/popular" />
-            <div className="grid grid-cols-2 gap-3">
-              <HomeCards items={popular} />
-            </div>
+            <SecH t={S.popular} id="popular" more="/popular" S={S} />
+            <CardRow items={popular} className="card-row duo-grid" />
           </section>
         ) : null}
       </div>
-
-      {allSeries.length ? (
-        <>
-          <SectionHead title={t("home.series")} href="/series" />
-          <Rail>
-            {allSeries.map(({ se, sh }) => (
-              <SeriesCard key={se.key} se={se} sh={sh} />
-            ))}
-          </Rail>
-        </>
-      ) : null}
-
-      {rest.length ? (
-        <>
-          <SectionHead title={t("home.others")} href="/others" />
-          <OthersGrid list={rest.slice(0, 8)} />
-        </>
-      ) : null}
-    </main>
+      <SecH t={S.series} id="series" more="/series" S={S} />
+      <div className="series-row">
+        {allSeries.map(({ se, sh }) => (
+          <SeriesCard key={se.key} se={se} sh={sh} S={S} />
+        ))}
+      </div>
+      <SecH t={S.others} more="/others" S={S} />
+      <OthersGrid list={rest.slice(0, 8)} />
+    </>
   );
 }

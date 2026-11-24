@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { locale as rootLocale } from "next/root-params";
 import { notFound } from "next/navigation";
-import { cleanTitle, Crumbs } from "@/components/blocks";
-import { Cover } from "@/components/cover";
-import { LessonList } from "@/components/lesson-list";
-import { LatestCard, SeriesSections } from "@/components/sheikh-client";
-import { ShareButton } from "@/components/share-button";
+import { dayOf, withLocale } from "@/components/ah/blocks";
+import { SeriesCover } from "@/components/ah/cover";
+import { ShareBtn } from "@/components/ah/global";
+import { Accordion, LatestPlay, List } from "@/components/ah/list";
+import { SideTabs, type Tab } from "@/components/ah/side-tabs";
 import { Link } from "@/i18n/navigation";
+import { hijriText, strings, type Strings } from "@/lib/ah";
 import { config } from "@/lib/config";
 import { getLookup, getSite } from "@/lib/data";
-import { clipCount, newest, sheikhAll, sheikhTabs, tabIds } from "@/lib/library";
+import { clipCount, newest, seriesIds, sheikhAll, sheikhLessons, sheikhTabs, tabIds, type SheikhTab } from "@/lib/library";
 import { toneOf } from "@/lib/theme";
-import { cn } from "@/lib/utils";
 
 export async function generateStaticParams() {
   const site = await getSite();
@@ -29,102 +29,94 @@ async function resolve(params: Promise<{ slug: string; tab?: string[] }>) {
   return { lk, sh, tabs, active };
 }
 
+const tabLabel = (x: SheikhTab, S: Strings) =>
+  x.label ||
+  (x.labelKey === "recent" ? S.recent : x.labelKey === "loose" ? S.loose : x.labelKey === "duaa" ? S.duaa : x.labelKey === "duaaMany" ? S.duaaMany : S.kind[(x.labelKey ?? "").replace("kinds.", "")]);
+
 export async function generateMetadata({ params }: PageProps<"/[locale]/s/[slug]/[[...tab]]">): Promise<Metadata> {
   const { sh, active } = await resolve(params);
-  const t = await getTranslations("common");
+  const S = strings(await rootLocale());
   const se = (sh.series ?? []).find((x) => x.key === active?.id);
-  return { title: se ? `${se.title} — ${t("sheikh")} ${sh.name}` : `${t("sheikh")} ${sh.name}` };
+  return { title: se ? `${se.title} — ${S.sheikh} ${sh.name}` : `${S.sheikh} ${sh.name}` };
 }
 
+/** A sheikh's page — sheikhPage() / renderPanel() in web/app.js. */
 export default async function SheikhPage({ params }: PageProps<"/[locale]/s/[slug]/[[...tab]]">) {
   const { lk, sh, tabs, active } = await resolve(params);
-  const t = await getTranslations();
-  const day = config.sheikhs.find((x) => x.key === sh.key)?.day;
-  const lastId = newest(sheikhAll(sh)).find((i) => lk.site.lessons[String(i)]?.p) ?? newest(sheikhAll(sh))[0];
-  const label = (x: (typeof tabs)[number]) => x.label || t(x.labelKey === "recent" ? "sheikh.recent" : x.labelKey === "loose" || x.labelKey === "duaa" || x.labelKey === "duaaMany" ? (`sheikh.${x.labelKey}` as "sheikh.loose") : (x.labelKey as "kinds.lesson"));
-  const groupTitle = (g: string) =>
-    g === "series" ? t("sheikh.groupSeries") : g === "other" ? t("sheikh.groupOther") : tabs.some((x) => x.id === "tilawa" && x.group === "lessons") ? t("sheikh.groupLessonsTilawat") : t("sheikh.groupLessons");
+  const locale = await rootLocale();
+  const S = strings(locale);
+  const day = dayOf(sh.key, locale);
+  const all = newest(sheikhAll(sh));
+  const lastId = all.find((i) => lk.site.lessons[String(i)]?.p) ?? all[0];
+  const last = lastId !== undefined ? lk.item(lastId) : null;
+  const g1 = sheikhLessons(sh).length && sh.tilawa.length ? S.groupLessonsTilawat : S.groupLessons;
+  const groupName = (g: SheikhTab["group"]) => (g === "series" ? S.series : g === "other" ? S.groupOther : g1);
+  const side: Tab[] = tabs.map((x) => ({ id: x.id, t: tabLabel(x, S), n: x.n, g: groupName(x.group) }));
+  const se = (sh.series ?? []).find((x) => x.key === active?.id);
+  const name = `${S.sheikh} ${sh.name}`;
 
-  const { ids, series } = active ? tabIds(sh, active.id) : { ids: [] };
-  const groups = [...new Set(tabs.map((x) => x.group))];
+  let body = null;
+  let n = 0;
+  if (se) {
+    const asc = lk.items(seriesIds(se));
+    const secs = se.sections.map((x) => ({ t: x.t, items: lk.items(newest(x.ids)) })).sort((a, b) => (b.items[0]?.id ?? 0) - (a.items[0]?.id ?? 0));
+    body = secs.length > 1 ? <Accordion id={`series:${se.key}`} sections={secs} queue={asc} /> : <List items={secs[0]?.items ?? []} queue={asc} />;
+    n = asc.length;
+  } else if (active) {
+    const ids = tabIds(sh, active.id).ids;
+    body = <List items={lk.items(ids)} limit={15} />;
+    n = ids.length;
+  }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-5">
-      <Crumbs items={[{ label: sh.name }]} />
-      <header className="mm-sh-head mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 pt-2 pb-4">
-        <div>
-          <h1 className="text-3xl font-extrabold">
-            {sh.main ? `${t("common.sheikh")} ` : ""}
+    <>
+      <div className="crumbs">
+        <Link href="/">{S.home}</Link> ‹ {sh.name}
+      </div>
+      <header className="sh-head">
+        <div className="sh-meta">
+          <h1>
+            {sh.main ? `${S.sheikh} ` : ""}
             {sh.name}
           </h1>
-          <p className="mt-0.5 text-muted-foreground">
+          <p>
             {day ? `${day} · ` : ""}
-            {t("common.clips", { count: clipCount(sh) })}
+            {S.clipsN(clipCount(sh))}
           </p>
         </div>
-        <ShareButton path={`/s/${sh.slug}`} title={`${t("common.sheikh")} ${sh.name}`} />
+        <ShareBtn path={withLocale(locale, `/s/${sh.slug}`)} title={name} cls="on-dark" label={S.share} />
       </header>
-
-      {lastId !== undefined ? <LatestCard item={lk.item(lastId)} label={t("sheikh.latestClip")} /> : null}
-
-      <div className="grid items-start gap-5 md:grid-cols-[250px_1fr]">
-        <nav aria-label={t("nav.sections")} className="mm-side sticky top-16 z-[5] -mx-4 flex gap-1.5 overflow-x-auto border-y bg-background px-4 py-2 md:top-20 md:mx-0 md:flex-col md:rounded-xl md:border md:bg-card md:p-2">
-          {groups.map((g) => (
-            <div key={g} className="contents md:block">
-              <h4 className="mm-side-h mx-2 mt-2 mb-1 hidden text-[12.5px] font-bold text-muted-foreground md:block">{groupTitle(g)}</h4>
-              {tabs
-                .filter((x) => x.group === g)
-                .map((x) => (
-                  <Link
-                    key={x.id}
-                    href={`/s/${sh.slug}/${x.id}`}
-                    replace
-                    scroll={false}
-                    aria-current={x.id === active?.id ? "page" : undefined}
-                    className={cn(
-                      "mm-tab flex shrink-0 items-center justify-between gap-2 rounded-full border px-3 py-1.5 text-[15px] md:w-full md:rounded-lg md:border-0 md:px-2.5",
-                      x.id === active?.id ? "border-primary bg-primary font-bold text-primary-foreground" : "hover:bg-muted",
-                    )}
-                  >
-                    <span>{label(x)}</span>
-                    <b className="text-[13px] font-semibold opacity-70 tabular-nums">{x.n}</b>
-                  </Link>
-                ))}
+      {last ? (
+        <div className="latest-card">
+          <LatestPlay it={last} />
+          <div className="txt">
+            <small>{S.latestClip}</small>
+            <div className="t">{last.t}</div>
+            <div className="m">
+              {hijriText(last.h, S)}
+              {last.d ? ` — ${last.d}` : ""}
             </div>
-          ))}
-        </nav>
-
-        <section>
-          {series ? (
-            <Cover
-              pat={series.sections[0]?.ids[0] ?? 0}
-              tone={toneOf(config, sh.key)}
-              kind="series"
-              tag={/^سلسلة/.test(series.title) ? t("sheikh.seriesLabel") : t("sheikh.lessonsLabel")}
-              title={cleanTitle(series.title)}
-              byline={`${t("common.sheikh")} ${sh.name}`}
-              className="mm-panel-cover mb-3 aspect-auto min-h-40 rounded-xl"
-            />
-          ) : null}
-          <div className="mm-panel-h mb-2.5 flex items-center justify-between gap-3">
-            <div>
-              {!series && active ? <h2 className="text-[21px] font-extrabold">{label(active)}</h2> : null}
-              <p className="text-sm text-muted-foreground">{t("sheikh.panelCount", { count: ids.length })}</p>
-            </div>
-            {active ? <ShareButton path={`/s/${sh.slug}/${active.id}`} title={`${label(active)} — ${t("common.sheikh")} ${sh.name}`} /> : null}
           </div>
-          {series && series.sections.length > 1 ? (
-            <SeriesSections
-              sections={series.sections
-                .map((x) => ({ t: x.t, items: lk.items(newest(x.ids)) }))
-                .sort((a, b) => (b.items[0]?.id ?? 0) - (a.items[0]?.id ?? 0))}
-              queue={lk.items(ids)}
-            />
-          ) : (
-            <LessonList items={lk.items(series ? newest(ids) : ids)} queue={series ? lk.items(ids) : undefined} limit={series ? undefined : 15} />
-          )}
-        </section>
+        </div>
+      ) : null}
+      <div className="split">
+        <SideTabs slug={sh.slug} tabs={side} active={active?.id ?? ""} />
+        <div className="panel" id="panel">
+          {se ? (
+            <div className="panel-cover">
+              <SeriesCover title={se.title} firstId={seriesIds(se)[0] ?? 0} tone={toneOf(config, sh.key)} sheikh={sh.name} S={S} />
+            </div>
+          ) : null}
+          <div className={`panel-h${se ? " slim" : ""}`}>
+            <div>
+              {se || !active ? null : <h2>{tabLabel(active, S)}</h2>}
+              <p>{S.panelSub(n)}</p>
+            </div>
+            {active ? <ShareBtn path={withLocale(locale, `/s/${sh.slug}/${active.id}`)} title={`${tabLabel(active, S)} — ${name}`} cls="on-dark" label={S.share} /> : null}
+          </div>
+          {body}
+        </div>
       </div>
-    </main>
+    </>
   );
 }
