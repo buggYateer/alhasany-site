@@ -479,9 +479,24 @@ function setSpeed(v) {
   speedMenu.innerHTML = SPEEDS.map(x => `<button role="menuitemradio" aria-checked="${x === v}" data-speed="${x}">${x}×</button>`).join("");
 }
 function speedOpen(open) { speedMenu.hidden = !open; speedBtn.setAttribute("aria-expanded", open); }
-speedBtn.onclick = e => { e.stopPropagation(); speedOpen(speedMenu.hidden); };
+speedBtn.onclick = e => { e.stopPropagation(); if (typeof volOpen === "function") volOpen(false); speedOpen(speedMenu.hidden); };
 speedMenu.onclick = e => { const b = e.target.closest("[data-speed]"); if (b) { setSpeed(+b.dataset.speed); speedOpen(false); } };
 document.addEventListener("click", e => { if (!e.target.closest(".speed")) speedOpen(false); });
+/* مستوى الصوت: سلايدر بالطول (آيفون مايسمحش بتغيير الصوت من الموقع، فبيستخبى) */
+const volEl = $("#plVol"), volPop = $("#plVolPop"), volBtn = $("#plVolBtn");
+function setVol(v, save = true) {
+  v = Math.max(0, Math.min(100, Math.round(v)));
+  audio.volume = v / 100; audio.muted = v === 0; volEl.value = v; volEl.style.setProperty("--p", v + "%");
+  $("#plVolIcon").textContent = v === 0 ? "volume_off" : v < 50 ? "volume_down" : "volume_up";
+  if (save) store.set("vol", v);
+}
+function volOpen(open) { volPop.hidden = !open; volBtn.setAttribute("aria-expanded", open); }
+volBtn.onclick = e => { e.stopPropagation(); speedOpen(false); volOpen(volPop.hidden); };
+volEl.addEventListener("input", () => setVol(+volEl.value));
+volPop.addEventListener("wheel", e => { e.preventDefault(); setVol(+volEl.value - Math.sign(e.deltaY) * 5); }, { passive: false });
+document.addEventListener("click", e => { if (!e.target.closest(".vol")) volOpen(false); });
+{ const a = new Audio(); a.volume = 0.5; if (a.volume !== 0.5) $("#plVolWrap").hidden = true; }
+setVol(store.get("vol", 100), false);
 
 /* الوضع النهاري / الليلي (الاختيار بيتحفظ على جهاز الزائر) */
 const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
