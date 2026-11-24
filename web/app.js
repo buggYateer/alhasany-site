@@ -738,6 +738,27 @@ function shareLink(path, title, btn) {
     closeShareMenu();
   };
 }
+/* لينكات تليجرام: قايمة صغيرة الأول بدل ما تفتح على طول (لو داس بالغلط) */
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="https://t.me/"]');
+  if (!a || a.closest("#shareMenu") || a.href.includes("/share/url") || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  e.preventDefault(); e.stopPropagation();
+  const url = a.href;
+  if (document.getElementById("shareMenu")?.dataset.for === "tg:" + url) return closeShareMenu();
+  closeShareMenu();
+  const m = document.createElement("div"); m.id = "shareMenu"; m.className = "share-menu"; m.dataset.for = "tg:" + url; m.setAttribute("role", "menu");
+  m.innerHTML = `<a role="menuitem" href="${url}" target="_blank" rel="noopener"><span class="ms">send</span>افتح في تليجرام</a><button role="menuitem" data-sm="copy"><span class="ms">link</span>نسخ الرابط</button>`;
+  document.body.appendChild(m);
+  const r = a.getBoundingClientRect(), mw = m.offsetWidth, mh = m.offsetHeight;
+  let top = r.top - mh - 8; if (top < 8) top = r.bottom + 8;
+  let left = r.left + r.width / 2 - mw / 2; left = Math.max(8, Math.min(left, innerWidth - mw - 8));
+  m.style.top = top + "px"; m.style.left = left + "px";
+  m.onclick = async ev => {
+    const it = ev.target.closest("[data-sm], a"); if (!it) return;
+    if (it.dataset.sm === "copy") { ev.preventDefault(); await copyLink(url); }
+    closeShareMenu();
+  };
+}, true);
 document.addEventListener("click", e => { if (!e.target.closest("#shareMenu, [data-share], [data-osort]")) closeShareMenu(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeShareMenu(); });
 window.addEventListener("scroll", closeShareMenu, { passive: true });
