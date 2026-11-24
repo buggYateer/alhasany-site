@@ -1,5 +1,7 @@
 import { config } from "@/lib/config";
 
+export const runtime = "edge";
+
 /**
  * Audio for iPhone / Safari: /api/audio/640.mp3 (or 640_2.mp3).
  * GitHub Releases serve files as application/octet-stream, which Safari refuses to play,
