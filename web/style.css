@@ -1011,3 +1011,6 @@ html.menu-open,html.menu-open body{overflow:hidden}
 @keyframes slideOut{from{transform:none}to{transform:translateX(100%)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
+/* المشغل الصغير: الضغط على اسم المقطع وصورته بس هو اللي يفتح الكبير */
+.player:not(.expanded) .pl-now{cursor:default}
+.player:not(.expanded) .pl-art,.player:not(.expanded) .pl-info{cursor:pointer}

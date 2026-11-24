@@ -426,7 +426,8 @@ function expand(on, viaHistory) {
 }
 player.addEventListener("click", e => {
   if (player.classList.contains("expanded")) return;
-  if (e.target.closest("button, a, input, .speed-menu, .vol") || Date.now() - (window.volDragEnd || 0) < 400) return; // سحب الصوت مايفتحش المشغل الكبير
+  // المشغل الكبير بيفتح من اسم المقطع وصورته بس (مش من أي حتة في الشريط)
+  if (e.target.closest("a") || !e.target.closest(".pl-art, .pl-info") || Date.now() - (window.volDragEnd || 0) < 400) return;
   expand(true);
 });
 $("#plMin").onclick = () => expand(false);
