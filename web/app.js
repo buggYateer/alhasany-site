@@ -534,7 +534,14 @@ paintTheme();
 /* المنيو الجانبي */
 const drawer = $("#drawer"), scrim = $("#scrim"), menuBtn = $("#menuBtn");
 function menu(open, fresh) {
-  drawer.hidden = scrim.hidden = !open; menuBtn.setAttribute("aria-expanded", open); document.documentElement.classList.toggle("menu-open", open);
+  /* فتح وقفل بالراحة: البانل بتتسحب من اليمين والخلفية بتغمق تدريجي */
+  clearTimeout(menu.t); drawer.classList.remove("closing"); scrim.classList.remove("closing");
+  if (open) drawer.hidden = scrim.hidden = false;
+  else if (!drawer.hidden) {
+    drawer.classList.add("closing"); scrim.classList.add("closing");
+    menu.t = setTimeout(() => { drawer.hidden = scrim.hidden = true; drawer.classList.remove("closing"); scrim.classList.remove("closing"); }, matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 260);
+  }
+  menuBtn.setAttribute("aria-expanded", open); document.documentElement.classList.toggle("menu-open", open);
   const b = document.body;
   if (open && !b.dataset.lockY) { b.dataset.lockY = scrollY; Object.assign(b.style, { position: "fixed", top: -scrollY + "px", left: "0", right: "0", overflow: "hidden" }); }
   else if (!open && b.dataset.lockY) { const y = +b.dataset.lockY; delete b.dataset.lockY; Object.assign(b.style, { position: "", top: "", left: "", right: "", overflow: "" }); if (!fresh) scrollTo({ top: y, behavior: "instant" }); }
