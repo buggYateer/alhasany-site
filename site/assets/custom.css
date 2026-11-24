@@ -1,0 +1,150 @@
+/* ===== هوية مسجد الحسني — طبقة شكل خاصة بالموقع ده بس (مش جزء من mosque-media) ===== */
+:root{
+  --navy:#2e3f6b; --navy-d:#1e2a4a; --gold:#cfa64a; --gold-d:#a8832f; --gold-l:#f6eedb;
+  --background:#eef1f7; --card:#ffffff; --muted:#f6f8fc; --foreground:#1a2238; --muted-foreground:#5e6782; --border:#dde2ee;
+  --accent:#e7ecf7; --accent-foreground:#2e3f6b; --primary:#2e3f6b; --primary-foreground:#fff; --ring:#2e3f6b;
+  --highlight:#cfa64a; --highlight-foreground:#1e2a4a; --header:#1e2a4a; --header-foreground:#fff;
+  --radius:14px;
+  --heading:"Alexandria","IBM Plex Sans Arabic",sans-serif;
+}
+.dark{
+  --background:#0f1626; --card:#18213a; --muted:#1d2843; --foreground:#e8ecf5; --muted-foreground:#9aa3bb; --border:#2a3655;
+  --accent:#223056; --accent-foreground:#e8ecf5; --primary:#cfa64a; --primary-foreground:#1e2a4a; --ring:#cfa64a;
+  --header:#1e2a4a; --header-foreground:#fff;
+}
+h1,h2,h3,.mm-brand,.mm-sh-name,.mm-cat-name,.mm-cover-text b,.mm-feature h2{font-family:var(--heading);font-weight:600;letter-spacing:0}
+
+/* الهيدر: كحلي، واسم المسجد بالدهبي، وزرار التليجرام دهبي */
+.mm-header{background:var(--navy-d);border-bottom:0}
+.mm-brand{font-size:20px}
+.mm-brand-name{color:var(--gold)}
+@media (max-width:480px){.mm-brand{font-size:15px;gap:4px}.mm-brand .grid{width:36px!important;height:36px!important}}
+.mm-brand .grid{background:none;box-shadow:none;width:46px;height:46px;padding:0}
+.mm-tg-btn{background:var(--gold);color:var(--navy-d);border-radius:999px;padding-inline:16px}
+
+/* الأقسام: كروت بخط دهبي تحت، والعدد في دايرة صغيرة في الركن */
+.mm-cats{gap:12px}
+.mm-cat{position:relative;flex-direction:column;justify-content:center;text-align:center;gap:4px;border:1.5px solid var(--border);border-bottom:4px solid var(--gold);padding:16px 8px 10px}
+.mm-cat-icon{background:none;width:auto;height:auto}
+.mm-cat-icon svg{width:36px;height:36px;color:var(--navy)}
+.mm-cat-name{flex:none;font-size:15.5px;min-height:2.7em;display:flex;align-items:center;justify-content:center}
+.mm-cat-n{position:absolute;top:8px;left:8px;min-width:26px;height:20px;padding:0 7px;border-radius:999px;background:var(--accent);color:var(--navy);font-size:11.5px;line-height:20px}
+.dark .mm-cat-icon svg{color:var(--gold)}
+
+/* أحدث درس: كحلي بقوس المحراب، والزرار دهبي */
+.mm-feature{position:relative;overflow:hidden;background:var(--navy);color:#fff;border-radius:24px 24px var(--radius) var(--radius);padding:28px;min-height:240px}
+.mm-feature::after{content:"";position:absolute;inset:auto -60px -120px auto;width:280px;height:340px;border:2px solid rgba(207,166,74,.35);border-radius:200px 200px 0 0;pointer-events:none}
+.mm-feature-tag{color:var(--gold);opacity:1}
+.mm-feature h2{font-size:22px;line-height:1.45}
+.mm-big-play{background:var(--gold);color:var(--navy-d);border-radius:999px;padding:10px 22px 10px 18px;position:relative;z-index:1}
+.dark .mm-feature{background:var(--card);border:1px solid var(--border)}
+
+/* عناوين الأقسام: شريط كحلي متدرج بحافة دهبي، و«عرض الكل» حبة */
+.mm-sec-h{align-items:center;margin:30px 0 14px;padding:10px 16px;border-radius:12px;background:linear-gradient(90deg,var(--navy-d),var(--navy));border-inline-start:6px solid var(--gold)}
+.mm-sec-h h2{color:#fff;font-size:18px}
+.mm-see-all{background:rgba(255,255,255,.12);color:var(--gold);padding:4px 14px;border-radius:999px}
+
+/* كروت المشايخ: لون الشيخ + النقشة، و«الشيخ» بالدهبي */
+.mm-sh-card{position:relative;overflow:hidden;align-items:center;text-align:center;justify-content:center;min-height:150px;border:0;color:#fff;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2256%22%20height%3D%2256%22%20viewBox%3D%220%200%2056%2056%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22%20transform%3D%22rotate%2845%2028%2028%29%22/%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2228%22%20r%3D%226%22/%3E%3C/g%3E%3C/svg%3E");background-color:#26365e}
+.mm-sh-card[data-tone="2"]{background-color:#1a4a54}.mm-sh-card[data-tone="3"]{background-color:#4e2535}.mm-sh-card[data-tone="4"]{background-color:#284e33}
+.mm-sh-card::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(10,14,28,.55) 0%,rgba(10,14,28,.3) 70%,rgba(10,14,28,.15) 100%);pointer-events:none}
+.mm-sh-card>*{position:relative;z-index:1}
+.mm-sh-label{color:#e9c873;font-weight:700;font-size:14px}
+.mm-sh-name{color:#fff;font-size:20px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.mm-day{align-self:center;background:rgba(255,255,255,.2);color:#fff}
+.mm-sh-card:hover{filter:brightness(1.1)}
+@media (min-width:861px){.mm-sheikhs{gap:16px}}
+
+/* الأغلفة: لون الشيخ + نقشة إسلامية + أيقونة باهتة + لوجو القبة في الركن */
+.mm-cover{background-color:#26365e;padding:0 7% 0 6%;align-items:center}
+.mm-cover[data-tone="2"]{background-color:#1a4a54}.mm-cover[data-tone="3"]{background-color:#4e2535}.mm-cover[data-tone="4"]{background-color:#284e33}
+.mm-cover[data-pat="0"]{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2256%22%20height%3D%2256%22%20viewBox%3D%220%200%2056%2056%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2214%22%20width%3D%2228%22%20height%3D%2228%22%20transform%3D%22rotate%2845%2028%2028%29%22/%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2228%22%20r%3D%226%22/%3E%3C/g%3E%3C/svg%3E")}
+.mm-cover[data-pat="1"]{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22%20stroke-width%3D%221.4%22%3E%3Cpath%20d%3D%22M24%202%2044%2013.5v23L24%2048%204%2036.5v-23Z%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2225%22%20r%3D%223%22%20fill%3D%22rgba%28207%2C166%2C74%2C.22%29%22/%3E%3C/svg%3E")}
+.mm-cover[data-pat="2"]{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M20%200%2040%2020%2020%2040%200%2020Z%22/%3E%3Cpath%20d%3D%22M20%2010%2030%2020%2020%2030%2010%2020Z%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3C/g%3E%3C/svg%3E")}
+.mm-cover[data-pat="3"]{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28207%2C166%2C74%2C.22%29%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M6%2044V24a14%2014%200%200%201%2028%200v20%22/%3E%3Cpath%20d%3D%22M14%2044V26a6%206%200%200%201%2012%200v18%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3C/g%3E%3C/svg%3E")}
+.mm-cover[data-pat="4"]{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%222%22%20fill%3D%22rgba%28207%2C166%2C74%2C.22%29%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%221.6%22%20fill%3D%22rgba%28255%2C255%2C255%2C.07%29%22/%3E%3Cpath%20d%3D%22M0%2020h40M20%200v40%22%20stroke%3D%22rgba%28255%2C255%2C255%2C.07%29%22%20stroke-width%3D%22.8%22/%3E%3C/svg%3E")}
+.mm-cover::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(to left,rgba(10,14,28,.62) 0%,rgba(10,14,28,.38) 55%,rgba(10,14,28,.12) 100%)}
+.mm-cover-icon{z-index:0;top:50%;left:5%;right:auto;inset-inline-end:auto;transform:translateY(-50%);width:auto!important;height:clamp(54px,30cqw,120px)!important;color:var(--gold);opacity:.16}
+.mm-cover-text{position:relative;z-index:1;max-width:72%}
+.mm-cover-text small{color:#e9c873;font-weight:700;opacity:1}
+.mm-cover-text b{color:#fff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.mm-cover-text i{color:rgba(255,255,255,.9)}
+.mm-cover-logo{position:absolute;z-index:1;bottom:8%;left:5%;width:34px;height:34px;background:url("/brand/logo.svg") center/contain no-repeat;opacity:.95}
+.mm-panel-cover{aspect-ratio:3.4/1;min-height:0}
+@media (max-width:600px){.mm-panel-cover{aspect-ratio:2.3/1}}
+
+/* كروت الدروس والسلاسل: اسم الشيخ بالدهبي */
+.mm-card{border-radius:var(--radius)}
+.mm-card-sub{color:var(--gold-d);font-weight:600}
+.dark .mm-card-sub,.dark .mm-row-sh{color:var(--gold)}
+
+/* عناوين الصفحات وصفحة الشيخ: كحلي بخط دهبي تحت */
+.mm-page-h,.mm-sh-head{background:var(--navy);color:#fff;border-radius:18px;border:0;border-bottom:4px solid var(--gold);padding:16px 20px}
+.mm-page-h h1,.mm-sh-head h1{color:#fff;font-size:26px}
+.mm-page-h p,.mm-sh-head p{color:rgba(255,255,255,.8)}
+.mm-page-h [aria-haspopup],.mm-sh-head [aria-haspopup]{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;border-radius:999px}
+.mm-page-h [aria-haspopup] svg,.mm-sh-head [aria-haspopup] svg{color:var(--gold)}
+.mm-panel-h{background:linear-gradient(90deg,var(--navy-d),var(--navy));border-radius:12px;border-inline-start:6px solid var(--gold);padding:10px 16px;color:#fff}
+.mm-panel-h h2{color:#fff;font-size:17px}
+.mm-panel-h p{color:rgba(255,255,255,.85);font-weight:600}
+.mm-panel-h [aria-haspopup]{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;border-radius:999px}
+.mm-latest{border-inline-start-color:var(--gold)}
+.mm-latest small{color:var(--gold-d)}
+
+/* العمود الجانبي في صفحة الشيخ */
+.mm-tab[aria-current="page"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (min-width:768px){
+  .mm-side-h{background:var(--navy);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px;margin:14px 0 6px}
+  .mm-tab[aria-current="page"]{background:var(--accent);color:var(--navy);border-color:transparent;box-shadow:inset -4px 0 0 var(--gold);font-weight:700}
+}
+
+/* القائمة: الصف وزرار التشغيل الكحلي المليان، واسم الشيخ دهبي */
+.mm-play{background:var(--navy);border:0;color:#fff}
+.mm-play:disabled{background:var(--muted);color:var(--muted-foreground)}
+.dark .mm-play{background:var(--gold);color:var(--navy-d)}
+.mm-row-sh{color:var(--gold-d)}
+.mm-row[data-playing]{background:var(--accent)}
+
+/* المشغّل: كحلي بخط دهبي فوق، وزرار التشغيل أبيض */
+.mm-player-mini{background:var(--navy-d);color:#fff;border-top:2px solid var(--gold);box-shadow:0 -6px 24px rgba(10,16,32,.3);backdrop-filter:none}
+.mm-player-mini *{--muted-foreground:rgba(255,255,255,.7)}
+.mm-player-mini button,.mm-player-mini a{color:#fff}
+.mm-player-mini .bg-primary{background:#fff;color:var(--navy-d)}
+.mm-player-mini [aria-haspopup]{border-color:rgba(255,255,255,.4)}
+.mm-player-full{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-d) 60%);color:#fff}
+.mm-player-full *{--muted-foreground:rgba(255,255,255,.75)}
+.mm-player-full .bg-primary{background:#fff;color:var(--navy-d)}
+.mm-player-full a.text-primary{color:var(--gold)}
+.mm-player .text-foreground,.mm-player button{color:#fff}
+.mm-player .bg-muted{background:rgba(255,255,255,.12)}
+.mm-player [role="menu"],.mm-player [role="group"]{color:var(--foreground)}
+.mm-player [role="menu"] *,.mm-player [role="group"] *{color:inherit}
+
+/* القائمة الجانبية */
+.mm-drawer-h{background:var(--navy);color:#fff;border-radius:8px;padding:6px 12px;border-inline-start:4px solid var(--gold)}
+.dark .mm-drawer-h{background:var(--navy-d);color:var(--gold)}
+
+/* صفحة دروس الأسبوع: كل شيخ في صف لوحده على الموبايل، و٤ مربعات كبار على الكمبيوتر */
+@media (max-width:860px){
+  .mm-wk-list{grid-template-columns:1fr;gap:10px}
+  .mm-wk-list .mm-sh-card{display:grid;grid-template-columns:1fr auto;align-items:center;text-align:start;min-height:0;padding:16px 18px;row-gap:2px}
+  .mm-wk-list .mm-sh-label{grid-column:1}
+  .mm-wk-list .mm-sh-name{grid-column:1}
+  .mm-wk-list .mm-day{grid-column:2;grid-row:1/span 2;align-self:center}
+}
+@media (min-width:861px){
+  .mm-wk-list{grid-template-columns:repeat(4,1fr);gap:22px}
+  .mm-wk-list .mm-sh-card{aspect-ratio:1;gap:18px;padding:24px}
+  .mm-wk-list .mm-sh-label{font-size:18px}
+  .mm-wk-list .mm-sh-name{font-size:30px}
+  .mm-wk-list .mm-day{font-size:16px;padding:4px 18px}
+}
+
+/* أزرار المشايخ السريعة في صفحة الدروس */
+.mm-qchips{scrollbar-width:none;padding:2px 0;margin-bottom:14px}
+.mm-qchips::-webkit-scrollbar{display:none}
+.mm-qchips button{border:1.5px solid var(--border);background:var(--card);color:var(--foreground);padding:8px 16px;font-size:15px;white-space:nowrap}
+.mm-qchips button:hover{border-color:var(--gold)}
+.mm-qchips button.bg-primary{background:var(--accent);color:var(--navy);border-color:var(--gold);font-weight:700}
+.dark .mm-qchips button.bg-primary{color:var(--gold)}
+@media (max-width:860px){.mm-qchips{margin-inline:-16px;padding-inline:16px}}
