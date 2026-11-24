@@ -746,8 +746,9 @@ document.addEventListener("click", e => {
   const url = a.href;
   if (document.getElementById("shareMenu")?.dataset.for === "tg:" + url) return closeShareMenu();
   closeShareMenu();
-  const m = document.createElement("div"); m.id = "shareMenu"; m.className = "share-menu"; m.dataset.for = "tg:" + url; m.setAttribute("role", "menu");
-  m.innerHTML = `<a role="menuitem" href="${url}" target="_blank" rel="noopener"><span class="ms">send</span>افتح في تليجرام</a><button role="menuitem" data-sm="copy"><span class="ms">link</span>نسخ الرابط</button>`;
+  const m = document.createElement("div"); m.id = "shareMenu"; m.className = "share-menu tg-menu"; m.dataset.for = "tg:" + url; m.setAttribute("role", "menu"); m.setAttribute("aria-label", "تليجرام");
+  const what = /t\.me\/[^/]+\/\d+/.test(url) ? "المقطع على قناة التليجرام" : "قناة المسجد على تليجرام";
+  m.innerHTML = `<div class="tgm-h"><i>${TG_SVG}</i><span>${what}</span></div><a role="menuitem" href="${url}" target="_blank" rel="noopener"><i class="tgm-ic">${TG_SVG}</i>افتح في تليجرام</a><button role="menuitem" data-sm="copy"><span class="ms">link</span>نسخ رابط تليجرام</button>`;
   document.body.appendChild(m);
   const r = a.getBoundingClientRect(), mw = m.offsetWidth, mh = m.offsetHeight;
   let top = r.top - mh - 8; if (top < 8) top = r.bottom + 8;

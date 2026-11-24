@@ -991,3 +991,14 @@ html.menu-open,html.menu-open body{overflow:hidden}
   .player:not(.expanded) .pl-center{gap:8px}
   .player:not(.expanded) .pl-speed{padding:2px 8px;font-size:13px;min-width:44px;border-width:1px}
 }
+/* قايمة تليجرام: لونها أزرق تليجرام وفوقها عنوان، عشان تبان مختلفة عن قايمة المشاركة */
+.tg-menu{border-top:3px solid #2aabee;min-width:210px}
+.tg-menu .tgm-h{display:flex;align-items:center;gap:8px;padding:6px 12px 8px;margin-bottom:4px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink-2,var(--ink));opacity:.85}
+.tg-menu .tgm-h i{width:22px;height:22px;border-radius:50%;background:#2aabee;display:grid;place-items:center;flex:none}
+.tg-menu .tgm-h svg{width:13px;height:13px;fill:#fff;margin-inline-start:-1px}
+.tg-menu .tgm-ic{width:20px;height:20px;display:grid;place-items:center}
+.tg-menu .tgm-ic svg{width:19px;height:19px;fill:#2aabee}
+.tg-menu .ms{color:#2aabee}
+.tg-menu a[role=menuitem]{color:#1c8fd0}
+:root[data-theme=dark] .tg-menu a[role=menuitem]{color:#5cc4f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .tg-menu a[role=menuitem]{color:#5cc4f5}}
