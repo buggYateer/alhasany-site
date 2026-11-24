@@ -18,5 +18,12 @@ export async function GET(req: Request, { params }: RouteContext<"/api/audio/[fi
     const v = r.headers.get(h);
     if (v) headers.set(h, v);
   }
+  // Small ranges (Safari's first probe is bytes=0-1) go back whole, so the length header survives
+  const want = /bytes=(\d+)-(\d+)/.exec(range ?? "");
+  if (want && Number(want[2]) - Number(want[1]) < 4_000_000) {
+    const buf = await r.arrayBuffer();
+    headers.set("Content-Length", String(buf.byteLength));
+    return new Response(buf, { status: r.status, headers });
+  }
   return new Response(r.body, { status: r.status, headers });
 }
