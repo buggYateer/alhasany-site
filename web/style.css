@@ -986,8 +986,10 @@ html.menu-open,html.menu-open body{overflow:hidden}
 @media (min-width:861px){
   .player:not(.expanded) .pl-inner{grid-template-columns:60px minmax(0,1.2fr) auto minmax(380px,560px) minmax(0,1fr);grid-template-areas:"art info knobs center side"}
   .player:not(.expanded) .pl-side{display:contents}
-  .player:not(.expanded) .pl-knobs{grid-area:knobs;display:flex;align-items:center;gap:4px;align-self:start;margin-top:6px}
-  .player:not(.expanded) .pl-acts{grid-area:side;justify-self:end;display:flex;align-items:center;gap:6px}
+  .player:not(.expanded) .pl-knobs{grid-area:knobs;display:flex;align-items:center;gap:12px;align-self:start;height:48px}
+  .player:not(.expanded) .pl-acts{grid-area:side;justify-self:end;display:flex;align-items:center;gap:6px;align-self:start;height:48px}
+  .player:not(.expanded) .pl-vol{width:42px;height:42px}
+  .player:not(.expanded) .pl-vol .ms{font-size:26px}
   .player:not(.expanded) .pl-center{gap:8px}
   .player:not(.expanded) .pl-speed{padding:2px 8px;font-size:13px;min-width:44px;border-width:1px}
 }
