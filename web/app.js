@@ -482,18 +482,37 @@ function speedOpen(open) { speedMenu.hidden = !open; speedBtn.setAttribute("aria
 speedBtn.onclick = e => { e.stopPropagation(); if (typeof volOpen === "function") volOpen(false); speedOpen(speedMenu.hidden); };
 speedMenu.onclick = e => { const b = e.target.closest("[data-speed]"); if (b) { setSpeed(+b.dataset.speed); speedOpen(false); } };
 document.addEventListener("click", e => { if (!e.target.closest(".speed")) speedOpen(false); });
-/* مستوى الصوت: سلايدر بالطول (آيفون مايسمحش بتغيير الصوت من الموقع، فبيستخبى) */
+/* مستوى الصوت: سلايدر بالطول (آيفون مايسمحش بتغيير الصوت من الموقع، فبيستخبى)
+   كمبيوتر: الماوس فوق الزرار يطلّع السلايدر، والضغطة تكتم/ترجّع الصوت
+   موبايل: الضغطة تفتح السلايدر، وتحته زرار كتم */
 const volEl = $("#plVol"), volPop = $("#plVolPop"), volBtn = $("#plVolBtn");
+const finePtr = matchMedia("(hover:hover) and (pointer:fine)");
+let volLast = 100;
 function setVol(v, save = true) {
   v = Math.max(0, Math.min(100, Math.round(v)));
   audio.volume = v / 100; audio.muted = v === 0; volEl.value = v; volEl.style.setProperty("--p", v + "%");
-  $("#plVolIcon").textContent = v === 0 ? "volume_off" : v < 50 ? "volume_down" : "volume_up";
+  const ic = v === 0 ? "volume_off" : v < 50 ? "volume_down" : "volume_up";
+  $("#plVolIcon").textContent = ic;
+  $("#plMute .ms").textContent = v === 0 ? "volume_up" : "volume_off";
+  $("#plMute").setAttribute("aria-label", v === 0 ? "رجّع الصوت" : "كتم الصوت");
+  volBtn.setAttribute("aria-label", finePtr.matches ? (v === 0 ? "رجّع الصوت" : "كتم الصوت") : "مستوى الصوت");
+  if (v > 0) volLast = v;
   if (save) store.set("vol", v);
 }
+const toggleMute = () => setVol(+volEl.value === 0 ? (volLast || 60) : 0);
 function volOpen(open) { volPop.hidden = !open; volBtn.setAttribute("aria-expanded", open); }
-volBtn.onclick = e => { e.stopPropagation(); speedOpen(false); volOpen(volPop.hidden); };
+volBtn.onclick = e => { e.stopPropagation(); speedOpen(false); finePtr.matches ? toggleMute() : volOpen(volPop.hidden); };
+$("#plMute").onclick = e => { e.stopPropagation(); toggleMute(); };
 volEl.addEventListener("input", () => setVol(+volEl.value));
-volPop.addEventListener("wheel", e => { e.preventDefault(); setVol(+volEl.value - Math.sign(e.deltaY) * 5); }, { passive: false });
+/* السحب بالإيد/الماوس على الفقاعة كلها (ومن غير ما الصفحة تتسحب معاه) */
+let volDrag = false;
+const volAt = e => { const r = volEl.getBoundingClientRect(); setVol((r.bottom - e.clientY) / r.height * 100); };
+volPop.addEventListener("pointerdown", e => { if (e.target.closest(".vol-mute")) return; e.preventDefault(); volDrag = true; volPop.setPointerCapture(e.pointerId); volAt(e); });
+volPop.addEventListener("pointermove", e => { if (volDrag) { e.preventDefault(); volAt(e); } });
+const volEnd = () => { volDrag = false; };
+volPop.addEventListener("pointerup", volEnd); volPop.addEventListener("pointercancel", volEnd);
+volPop.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+$("#plVolWrap").addEventListener("wheel", e => { e.preventDefault(); setVol(+volEl.value - Math.sign(e.deltaY) * 5); }, { passive: false });
 document.addEventListener("click", e => { if (!e.target.closest(".vol")) volOpen(false); });
 { const a = new Audio(); a.volume = 0.5; if (a.volume !== 0.5) $("#plVolWrap").hidden = true; }
 setVol(store.get("vol", 100), false);
