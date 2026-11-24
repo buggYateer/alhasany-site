@@ -112,7 +112,9 @@ export function AhPlayer() {
     <div className={`player${p.expanded ? " expanded" : ""}`} id="player" hidden={!cur}
       onClick={(e) => {
         if (p.expanded) return;
-        if ((e.target as Element).closest("button, a, input, .speed-menu, .vol, .vol-pop")) return;
+        const t = e.target as Element;
+        // only the title / art opens the full player (not the rest of the bar)
+        if (!t.closest(".pl-art, .pl-info") || t.closest("a")) return;
         // releasing a volume drag outside the popover also fires a click here
         if (Date.now() - volDragEnd.current < 400) return;
         p.setExpanded(true);
