@@ -46,6 +46,11 @@ export function AhPlayer() {
   const lastVol = useRef(100);
   const volEl = useRef<HTMLInputElement>(null);
   const drag = useRef(false);
+  const volDragEnd = useRef(0);
+  const volEnd = () => {
+    if (drag.current) volDragEnd.current = Date.now();
+    drag.current = false;
+  };
 
   useEffect(() => {
     const a = p.audio.current;
@@ -107,7 +112,9 @@ export function AhPlayer() {
     <div className={`player${p.expanded ? " expanded" : ""}`} id="player" hidden={!cur}
       onClick={(e) => {
         if (p.expanded) return;
-        if ((e.target as Element).closest("button, a, input, .speed-menu, .vol-pop")) return;
+        if ((e.target as Element).closest("button, a, input, .speed-menu, .vol, .vol-pop")) return;
+        // releasing a volume drag outside the popover also fires a click here
+        if (Date.now() - volDragEnd.current < 400) return;
         p.setExpanded(true);
       }}
     >
@@ -223,8 +230,8 @@ export function AhPlayer() {
                       volAt(e.clientY);
                     }
                   }}
-                  onPointerUp={() => (drag.current = false)}
-                  onPointerCancel={() => (drag.current = false)}
+                  onPointerUp={volEnd}
+                  onPointerCancel={volEnd}
                 >
                   <input
                     ref={volEl}
